@@ -26,9 +26,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-lg font-semibold">ADN</h1>
-              <p className="text-xs text-slate-500 mt-1">
-                Call Agent Dashboard
-              </p>
+              <p className="text-xs text-slate-500 mt-1">AI Calls Dashboard</p>
             </div>
           </div>
         </div>
@@ -105,7 +103,7 @@ export default function Dashboard() {
                   />
                 </svg>
               </Icon>
-              Agents
+              AI Agents
             </Link>
           </Button>
 
@@ -143,7 +141,7 @@ export default function Dashboard() {
             </div>
             <div>
               <div className="text-sm font-medium">Admin</div>
-              <div className="text-xs text-slate-500">admin@adn.com</div>
+              <div className="text-xs text-slate-500">admin@adn.ai</div>
             </div>
           </div>
         </div>
@@ -158,28 +156,28 @@ export default function Dashboard() {
                 Dashboard
               </h2>
               <p className="text-sm text-slate-500 mt-1">
-                Overview of your call operations
+                Overview of AI-powered calls and agents
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline">Reports</Button>
-              <Button>New Call</Button>
+              <Button variant="outline">Call Logs</Button>
+              <Button>Start Call</Button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <Card className="lg:col-span-2">
               <CardHeader>
-                <CardTitle>Welcome to ADN</CardTitle>
+                <CardTitle>Welcome to ADN Calls</CardTitle>
                 <CardDescription>
-                  Manage your call agent operations from this dashboard.
+                  Control and monitor AI-driven calls from here.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600">
-                  Welcome! This is your ADN Call Agent dashboard. Use the left
-                  panel to navigate between sections. For quick actions, use the
-                  buttons on the top right.
+                  This dashboard helps you oversee live call sessions powered by
+                  AI agents. View real-time transcripts, agent availability,
+                  call quality metrics, and start new calls directly.
                 </p>
               </CardContent>
             </Card>
@@ -191,18 +189,18 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-semibold">8</div>
-                  <div className="text-sm text-slate-500">Currently active</div>
+                  <div className="text-sm text-slate-500">Live calls</div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Available Agents</CardTitle>
+                  <CardTitle>Online AI Agents</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-semibold">12</div>
                   <div className="text-sm text-slate-500">
-                    Ready to take calls
+                    Available to handle conversations
                   </div>
                 </CardContent>
               </Card>
