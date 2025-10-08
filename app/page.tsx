@@ -160,8 +160,21 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline">Call Logs</Button>
-              <Button>Start Call</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-slate-900 border-slate-300 bg-white hover:bg-slate-100"
+              >
+                Call Logs
+              </Button>
+
+              <Button
+                size="sm"
+                variant="default"
+                className="bg-black text-white hover:bg-slate-800"
+              >
+                Start Call
+              </Button>
             </div>
           </div>
 
