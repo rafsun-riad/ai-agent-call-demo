@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { ArrowUpDown, Trash2 } from "lucide-react";
 import { COLUMN_LABELS, ColumnKey } from "./column-visibility-selector";
 
 export type AIAgent = {
@@ -46,25 +46,27 @@ export default function AIAgentsTable({
   onSort,
   onDelete,
 }: Props) {
-  const renderSortIcon = (field: SortField) => {
-    if (sortField !== field) return null;
-    return sortDirection === "asc" ? (
-      <ChevronUp className="h-4 w-4 ml-1" />
-    ) : (
-      <ChevronDown className="h-4 w-4 ml-1" />
-    );
+  const renderSortIcon = () => {
+    // Always show the up/down arrow icon for sorting
+    return <ArrowUpDown className="h-4 w-4 ml-1 text-slate-600" />;
   };
 
   const renderSortableHeader = (field: SortField, label: string) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="h-auto p-0 font-medium hover:bg-transparent"
+    <button
+      type="button"
       onClick={() => onSort(field)}
+      aria-sort={
+        sortField === field
+          ? sortDirection === "asc"
+            ? "ascending"
+            : "descending"
+          : undefined
+      }
+      className="inline-flex items-center gap-1 p-0 text-sm font-medium text-slate-900 hover:underline"
     >
-      {label}
-      {renderSortIcon(field)}
-    </Button>
+      <span>{label}</span>
+      {renderSortIcon()}
+    </button>
   );
 
   return (
