@@ -3,13 +3,21 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Edit3, Eye, Save } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Edit3, Eye, Save, Smile, Type } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+// Dynamic imports to avoid SSR issues
+const EmojiPicker = dynamic(() => import("emoji-picker-react"), {
+  ssr: false,
+  loading: () => (
+    <div className="text-sm text-slate-500">Loading emojis...</div>
+  ),
+});
+
 // Dynamic import for Ace Editor to avoid SSR issues
-import dynamic from "next/dynamic";
 
 const AceEditor = dynamic(
   async () => {
@@ -44,6 +52,68 @@ export default function SystemPromptEditor({
   const [editedPrompt, setEditedPrompt] = useState(systemPrompt);
   const [activeTab, setActiveTab] = useState<"preview" | "edit">("preview");
   const [hasChanges, setHasChanges] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const aceEditorRef = useRef<{ editor: unknown } | null>(null);
+
+  // Common symbols and emojis used in AI prompts
+  const commonSymbols = [
+    "❌",
+    "✅",
+    "⚠️",
+    "📝",
+    "🔍",
+    "💡",
+    "🎯",
+    "⭐",
+    "🚫",
+    "✨",
+    "🔢",
+    "📋",
+    "🎭",
+    "🌟",
+    "🎪",
+    "🎨",
+    "🎵",
+    "🎮",
+    "🎲",
+    "🎯",
+    "→",
+    "←",
+    "↑",
+    "↓",
+    "⇒",
+    "⇐",
+    "⇑",
+    "⇓",
+    "↗",
+    "↘",
+    "•",
+    "‣",
+    "▶",
+    "▸",
+    "►",
+    "▷",
+    "▪",
+    "▫",
+    "■",
+    "□",
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showEmojiPicker) {
+        const target = event.target as HTMLElement;
+        if (!target.closest(".emoji-picker-container")) {
+          setShowEmojiPicker(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   useEffect(() => {
     setEditedPrompt(systemPrompt);
@@ -66,6 +136,29 @@ export default function SystemPromptEditor({
     setEditedPrompt(systemPrompt);
     setHasChanges(false);
     setActiveTab("preview");
+  };
+
+  const handleEmojiClick = (emojiData: { emoji: string }) => {
+    const emoji = emojiData.emoji;
+    insertTextAtCursor(emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const handleSymbolClick = (symbol: string) => {
+    insertTextAtCursor(symbol);
+  };
+
+  const insertTextAtCursor = (text: string) => {
+    if (aceEditorRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const editor = aceEditorRef.current.editor as any;
+      editor.insert(text);
+      editor.focus();
+    } else {
+      // Fallback: append to end
+      const newValue = editedPrompt + text;
+      handlePromptChange(newValue);
+    }
   };
 
   // Convert \n to actual newlines for display
@@ -192,12 +285,80 @@ export default function SystemPromptEditor({
 
           {isEditable && (
             <TabsContent value="edit" className="mt-4">
+              {/* Emoji and Symbol Toolbar */}
+              <div className="mb-4 space-y-3">
+                {/* Quick Symbol Buttons */}
+                <div className="flex flex-wrap gap-1 p-3 bg-slate-50 border rounded-lg">
+                  <span className="text-xs font-medium text-slate-600 mr-2 flex items-center">
+                    <Type className="h-3 w-3 mr-1" />
+                    Quick Symbols:
+                  </span>
+                  {commonSymbols.slice(0, 20).map((symbol, index) => (
+                    <Button
+                      key={index}
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-base hover:bg-slate-200"
+                      onClick={() => handleSymbolClick(symbol)}
+                      title={`Insert ${symbol}`}
+                    >
+                      {symbol}
+                    </Button>
+                  ))}
+
+                  {/* Emoji Picker Button */}
+                  <div className="relative ml-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    >
+                      <Smile className="h-3 w-3 mr-1" />
+                      Emojis
+                    </Button>
+
+                    {showEmojiPicker && (
+                      <div className="absolute top-8 left-0 z-50 bg-white border rounded-lg shadow-lg emoji-picker-container">
+                        <EmojiPicker
+                          onEmojiClick={handleEmojiClick}
+                          width={350}
+                          height={400}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* More Symbols */}
+                <div className="flex flex-wrap gap-1 p-3 bg-slate-50 border rounded-lg">
+                  <span className="text-xs font-medium text-slate-600 mr-2 flex items-center">
+                    More Symbols:
+                  </span>
+                  {commonSymbols.slice(20).map((symbol, index) => (
+                    <Button
+                      key={index + 20}
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-base hover:bg-slate-200"
+                      onClick={() => handleSymbolClick(symbol)}
+                      title={`Insert ${symbol}`}
+                    >
+                      {symbol}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
               <div className="border rounded-lg overflow-hidden">
                 <AceEditor
                   mode="markdown"
                   theme="github"
                   value={formattedPrompt}
                   onChange={handlePromptChange}
+                  onLoad={(editor) => {
+                    aceEditorRef.current = { editor };
+                  }}
                   width="100%"
                   height="400px"
                   fontSize={14}
