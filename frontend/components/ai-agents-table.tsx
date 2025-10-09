@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { AIAgent } from "@/hooks/useAIAgents";
 import { ArrowUpDown, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { COLUMN_LABELS, ColumnKey } from "./column-visibility-selector";
 
 export type SortField =
@@ -117,7 +118,12 @@ export default function AIAgentsTable({
                 )}
                 {visibleColumns.includes("agentName") && (
                   <TableCell className="font-medium">
-                    {agent.agentName}
+                    <Link
+                      href={`/ai-agents/${agent.id}`}
+                      className="text-slate-900 hover:text-slate-600 hover:underline"
+                    >
+                      {agent.agentName}
+                    </Link>
                   </TableCell>
                 )}
                 {visibleColumns.includes("agentType") && (
