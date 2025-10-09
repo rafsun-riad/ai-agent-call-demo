@@ -91,7 +91,7 @@ export function useAIAgents() {
   return useSuspenseQuery({
     queryKey: ["ai-agents"],
     queryFn: async (): Promise<AIAgent[]> => {
-      const response = await api.get("/v2/ai-agents/");
+      const response = await api.get("/ai-agents");
       const apiResponse: AIAgentResponse = response.data;
       return transformAIAgentData(apiResponse.data);
     },
