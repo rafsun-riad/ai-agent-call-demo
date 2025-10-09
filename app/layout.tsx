@@ -1,6 +1,9 @@
 import PageLoadingBar from "@/components/page-loading-bar";
+import { QueryProviders } from "@/providers/QueryProviders";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +32,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <PageLoadingBar />
-        {children}
+        <QueryProviders>
+          {children}
+
+          <ReactQueryDevtools initialIsOpen={false} />
+          <Toaster richColors />
+        </QueryProviders>
       </body>
     </html>
   );
