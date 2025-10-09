@@ -1,9 +1,9 @@
 "use client";
 
+import Breadcrumb from "@/components/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { useAIAgentDetails } from "@/hooks/useAIAgentDetails";
-import { ArrowLeft, Copy } from "lucide-react";
-import Link from "next/link";
+import { Copy } from "lucide-react";
 import { useState } from "react";
 
 interface AIAgentDetailsPageContentProps {
@@ -28,20 +28,23 @@ export default function AIAgentDetailsPageContent({
 
   return (
     <div className="space-y-6">
-      {/* Header with back button */}
+      {/* Breadcrumb */}
+      <Breadcrumb
+        items={[
+          { label: "AI Agents", href: "/ai-agents" },
+          { label: agentData.agent_name },
+        ]}
+      />
+
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/ai-agents">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to AI Agents
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900">
-              {agentData.agent_name}
-            </h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            {agentData.agent_name}
+          </h1>
+          <div className="space-y-1 mt-2">
             <p className="text-slate-600">Agent ID: {agentData.ai_agent_id}</p>
+            <p className="text-slate-600">LLM ID: {agentData.llm?.llm_id}</p>
           </div>
         </div>
 

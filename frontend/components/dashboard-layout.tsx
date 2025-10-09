@@ -18,13 +18,13 @@ type Props = {
 };
 
 export default function DashboardLayout({
-  title = "Dashboard",
+  title,
   subtitle,
   actions,
   children,
 }: Props) {
   return (
-    <div className="min-h-screen bg-slate-50 flex text-slate-900">
+    <div className="h-screen bg-slate-50 flex text-slate-900 overflow-hidden">
       {/* Sidebar */}
       <aside className="w-72 bg-white border-r shadow-sm flex flex-col">
         <div className="px-6 py-5">
@@ -153,19 +153,25 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
-              {subtitle ? (
-                <p className="text-sm text-slate-500 mt-1">{subtitle}</p>
-              ) : null}
-            </div>
-            <div className="flex items-center gap-3">{actions}</div>
-          </div>
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-10">
+          <div className="max-w-7xl mx-auto">
+            {title && (
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-semibold text-slate-900">
+                    {title}
+                  </h2>
+                  {subtitle ? (
+                    <p className="text-sm text-slate-500 mt-1">{subtitle}</p>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-3">{actions}</div>
+              </div>
+            )}
 
-          {children}
+            {children}
+          </div>
         </div>
       </main>
     </div>

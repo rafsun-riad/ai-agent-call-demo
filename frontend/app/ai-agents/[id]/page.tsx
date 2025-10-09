@@ -16,10 +16,7 @@ export default async function AIAgentDetailsPage({
   const { id } = await params;
 
   return (
-    <DashboardLayout
-      title="AI Agent Details"
-      subtitle="View detailed information about the AI agent"
-    >
+    <DashboardLayout>
       <ClientOnly>
         <Suspense fallback={<AIAgentDetailsSkeleton />}>
           <AIAgentDetailsPageContent agentId={id} />
