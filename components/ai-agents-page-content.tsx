@@ -46,8 +46,8 @@ const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
   "sno",
   "agentName",
   "agentType",
+  "voice",
   "createdAt",
-  "updatedAt",
   "actions",
 ];
 
@@ -97,11 +97,6 @@ export default function AIAgentsPageContent() {
         let bValue: string | number;
 
         switch (sortField) {
-          case "sno":
-            // For S.No, we'll use the original array index
-            aValue = MOCK_AGENTS.indexOf(a);
-            bValue = MOCK_AGENTS.indexOf(b);
-            break;
           case "agentName":
             aValue = a.agentName.toLowerCase();
             bValue = b.agentName.toLowerCase();
@@ -109,6 +104,10 @@ export default function AIAgentsPageContent() {
           case "agentType":
             aValue = a.agentType.toLowerCase();
             bValue = b.agentType.toLowerCase();
+            break;
+          case "voice":
+            aValue = a.voice.toLowerCase();
+            bValue = b.voice.toLowerCase();
             break;
           case "createdAt":
             aValue = new Date(a.createdAt).getTime();

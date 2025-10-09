@@ -22,9 +22,9 @@ export type AIAgent = {
 };
 
 export type SortField =
-  | "sno"
   | "agentName"
   | "agentType"
+  | "voice"
   | "createdAt"
   | "updatedAt";
 export type SortDirection = "asc" | "desc";
@@ -73,9 +73,7 @@ export default function AIAgentsTable({
         <TableHeader>
           <TableRow>
             {visibleColumns.includes("sno") && (
-              <TableHead className="w-16">
-                {renderSortableHeader("sno", COLUMN_LABELS.sno)}
-              </TableHead>
+              <TableHead className="w-16">{COLUMN_LABELS.sno}</TableHead>
             )}
             {visibleColumns.includes("agentName") && (
               <TableHead>
@@ -88,7 +86,9 @@ export default function AIAgentsTable({
               </TableHead>
             )}
             {visibleColumns.includes("voice") && (
-              <TableHead>{COLUMN_LABELS.voice}</TableHead>
+              <TableHead>
+                {renderSortableHeader("voice", COLUMN_LABELS.voice)}
+              </TableHead>
             )}
             {visibleColumns.includes("createdAt") && (
               <TableHead>
