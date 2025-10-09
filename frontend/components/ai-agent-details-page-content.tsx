@@ -6,7 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useAIAgentDetails } from "@/hooks/useAIAgentDetails";
-import { Copy, MessageSquare, Save } from "lucide-react";
+import {
+  Brain,
+  Copy,
+  MessageSquare,
+  Mic,
+  Save,
+  Settings,
+  Volume2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface AIAgentDetailsPageContentProps {
@@ -165,6 +173,82 @@ export default function AIAgentDetailsPageContent({
               </p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* AI Agent Configuration */}
+      <Card className="w-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            AI Agent Configuration
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* LLM Configuration */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Brain className="h-4 w-4 text-blue-600" />
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Language Model
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    LLM Type
+                  </label>
+                  <span className="text-sm font-medium text-slate-900 mt-1 capitalize">
+                    {agentData.llm?.llm_type || "Not specified"}
+                  </span>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    Model Name
+                  </label>
+                  <span className="text-sm font-medium text-slate-900 mt-1">
+                    {agentData.llm?.model_name || "Not specified"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Audio Configuration */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Volume2 className="h-4 w-4 text-green-600" />
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Audio Processing
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                    <Mic className="h-3 w-3" />
+                    STT Model
+                  </label>
+                  <span className="text-sm font-medium text-slate-900 mt-1">
+                    {agentData.stt?.model || "Not specified"}
+                  </span>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                    <Volume2 className="h-3 w-3" />
+                    TTS Voice
+                  </label>
+                  <span className="text-sm font-medium text-slate-900 mt-1">
+                    {agentData.tts?.voice_name || "Not specified"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
