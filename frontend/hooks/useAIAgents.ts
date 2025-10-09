@@ -77,8 +77,7 @@ export function transformAIAgentData(apiData: AIAgentData[]): AIAgent[] {
   return apiData.map((agent) => ({
     id: agent.ai_agent_id,
     agentName: agent.agent_name,
-    agentType:
-      `${agent.llm.model_provider} (${agent.language_code})` || "Unknown",
+    agentType: `${agent.llm.llm_type}` || "Unknown",
     voice: `${agent.tts.voice_name} (${agent.tts.provider})` || "Unknown",
     createdAt: new Date(agent.created_at * 1000).toISOString(),
     updatedAt: new Date(agent.modified_at * 1000).toISOString(),

@@ -121,7 +121,9 @@ export default function AIAgentsTable({
                   </TableCell>
                 )}
                 {visibleColumns.includes("agentType") && (
-                  <TableCell>{agent.agentType}</TableCell>
+                  <TableCell className=" capitalize">
+                    {agent.agentType}
+                  </TableCell>
                 )}
                 {visibleColumns.includes("voice") && (
                   <TableCell>{agent.voice}</TableCell>
