@@ -123,7 +123,7 @@ export default function SystemPromptEditor({
           </TabsList>
 
           <TabsContent value="preview" className="mt-4">
-            <div className="prose prose-slate max-w-none bg-white border rounded-lg p-6 min-h-96 overflow-auto">
+            <div className="prose prose-slate max-w-none bg-white border rounded-lg p-6 h-96 overflow-y-auto">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -199,7 +199,7 @@ export default function SystemPromptEditor({
                   value={formattedPrompt}
                   onChange={handlePromptChange}
                   width="100%"
-                  height="600px"
+                  height="400px"
                   fontSize={14}
                   showPrintMargin={false}
                   showGutter={true}
