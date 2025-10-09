@@ -3,9 +3,11 @@
 import Breadcrumb from "@/components/breadcrumb";
 import SystemPromptEditor from "@/components/system-prompt-editor";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { useAIAgentDetails } from "@/hooks/useAIAgentDetails";
-import { Copy } from "lucide-react";
-import { useState } from "react";
+import { Copy, MessageSquare, Save } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface AIAgentDetailsPageContentProps {
   agentId: string;
@@ -16,6 +18,15 @@ export default function AIAgentDetailsPageContent({
 }: AIAgentDetailsPageContentProps) {
   const { data: agentData } = useAIAgentDetails(agentId);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [welcomeMessage, setWelcomeMessage] = useState("");
+  const [welcomeMessageChanged, setWelcomeMessageChanged] = useState(false);
+
+  // Initialize welcome message when data loads
+  useEffect(() => {
+    if (agentData?.welcome_message) {
+      setWelcomeMessage(agentData.welcome_message.replace(/\\n/g, "\n"));
+    }
+  }, [agentData?.welcome_message]);
 
   const handleCopyJson = async () => {
     try {
@@ -35,6 +46,29 @@ export default function AIAgentDetailsPageContent({
     } catch (err) {
       console.error("Failed to save system prompt:", err);
     }
+  };
+
+  const handleWelcomeMessageChange = (value: string) => {
+    setWelcomeMessage(value);
+    setWelcomeMessageChanged(
+      value !== (agentData?.welcome_message?.replace(/\\n/g, "\n") || "")
+    );
+  };
+
+  const handleWelcomeMessageSave = async () => {
+    try {
+      // TODO: Implement API call to update welcome message
+      console.log("Saving welcome message:", welcomeMessage);
+      setWelcomeMessageChanged(false);
+      // You can implement the API call here using the PATCH endpoint
+    } catch (err) {
+      console.error("Failed to save welcome message:", err);
+    }
+  };
+
+  const handleWelcomeMessageDiscard = () => {
+    setWelcomeMessage(agentData?.welcome_message?.replace(/\\n/g, "\n") || "");
+    setWelcomeMessageChanged(false);
   };
 
   return (
@@ -83,6 +117,56 @@ export default function AIAgentDetailsPageContent({
         onSave={handleSystemPromptSave}
         isEditable={true}
       />
+
+      {/* Welcome Message Editor */}
+      <Card className="w-full">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Welcome Message
+            </CardTitle>
+            {welcomeMessageChanged && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleWelcomeMessageDiscard}
+                  className="text-slate-600"
+                >
+                  Discard
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleWelcomeMessageSave}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Save className="h-4 w-4 mr-1" />
+                  Save Changes
+                </Button>
+              </div>
+            )}
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          <Textarea
+            value={welcomeMessage}
+            onChange={(e) => handleWelcomeMessageChange(e.target.value)}
+            placeholder="Enter the welcome message that will be played when a call starts..."
+            className="min-h-32 max-h-48 resize-y text-sm leading-relaxed"
+            rows={6}
+          />
+          {welcomeMessageChanged && (
+            <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700">
+                You have unsaved changes. Click &quot;Save Changes&quot; to
+                apply them or &quot;Discard&quot; to revert.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Full Agent Data (Collapsible) */}
       <details className="bg-slate-50 rounded-lg border">
