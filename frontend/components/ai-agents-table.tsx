@@ -9,17 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AIAgent } from "@/hooks/useAIAgents";
 import { ArrowUpDown, Trash2 } from "lucide-react";
 import { COLUMN_LABELS, ColumnKey } from "./column-visibility-selector";
-
-export type AIAgent = {
-  id: string;
-  agentName: string;
-  agentType: string;
-  voice: string;
-  createdAt: string;
-  updatedAt: string;
-};
 
 export type SortField =
   | "agentName"

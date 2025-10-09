@@ -1,7 +1,6 @@
 "use client";
 
 import AIAgentsTable, {
-  AIAgent,
   SortDirection,
   SortField,
 } from "@/components/ai-agents-table";
@@ -11,36 +10,9 @@ import ColumnVisibilitySelector, {
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAIAgents } from "@/hooks/useAIAgents";
 import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
-
-// Mock data - replace with actual data fetching
-const MOCK_AGENTS: AIAgent[] = [
-  {
-    id: "1",
-    agentName: "Customer Support Agent",
-    agentType: "Support",
-    voice: "Emma (Female)",
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-02-01T14:20:00Z",
-  },
-  {
-    id: "2",
-    agentName: "Sales Assistant",
-    agentType: "Sales",
-    voice: "James (Male)",
-    createdAt: "2024-01-20T09:15:00Z",
-    updatedAt: "2024-01-25T16:45:00Z",
-  },
-  {
-    id: "3",
-    agentName: "Technical Support",
-    agentType: "Technical",
-    voice: "Sarah (Female)",
-    createdAt: "2024-02-01T11:00:00Z",
-    updatedAt: "2024-02-05T13:30:00Z",
-  },
-];
 
 const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
   "sno",
@@ -52,6 +24,7 @@ const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
 ];
 
 export default function AIAgentsPageContent() {
+  const { data: agents } = useAIAgents();
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<ColumnKey[]>(
     DEFAULT_VISIBLE_COLUMNS
@@ -84,7 +57,7 @@ export default function AIAgentsPageContent() {
   };
 
   const filteredAndSortedAgents = useMemo(() => {
-    const filtered = MOCK_AGENTS.filter(
+    const filtered = agents.filter(
       (agent) =>
         agent.agentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         agent.agentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -128,7 +101,7 @@ export default function AIAgentsPageContent() {
     }
 
     return filtered;
-  }, [searchTerm, sortField, sortDirection]);
+  }, [agents, searchTerm, sortField, sortDirection]);
 
   return (
     <DashboardLayout
