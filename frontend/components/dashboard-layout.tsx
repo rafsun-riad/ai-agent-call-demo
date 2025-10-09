@@ -65,7 +65,7 @@ export default function DashboardLayout({
 
           <Button asChild variant="ghost" className="w-full justify-start px-4">
             <Link
-              href="#"
+              href="/calls"
               className="flex items-center gap-3 w-full text-slate-700"
             >
               <Icon>
