@@ -1,6 +1,7 @@
 "use client";
 
 import Breadcrumb from "@/components/breadcrumb";
+import SystemPromptEditor from "@/components/system-prompt-editor";
 import { Button } from "@/components/ui/button";
 import { useAIAgentDetails } from "@/hooks/useAIAgentDetails";
 import { Copy } from "lucide-react";
@@ -26,6 +27,16 @@ export default function AIAgentDetailsPageContent({
     }
   };
 
+  const handleSystemPromptSave = async (updatedPrompt: string) => {
+    try {
+      // TODO: Implement API call to update system prompt
+      console.log("Saving system prompt:", updatedPrompt);
+      // You can implement the API call here using the PATCH endpoint
+    } catch (err) {
+      console.error("Failed to save system prompt:", err);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -47,15 +58,6 @@ export default function AIAgentDetailsPageContent({
             <p className="text-slate-600">LLM ID: {agentData.llm?.llm_id}</p>
           </div>
         </div>
-
-        <Button
-          onClick={handleCopyJson}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <Copy className="h-4 w-4" />
-          {copySuccess ? "Copied!" : "Copy JSON"}
-        </Button>
       </div>
 
       {/* Agent Status */}
@@ -75,19 +77,37 @@ export default function AIAgentDetailsPageContent({
         </span>
       </div>
 
-      {/* JSON Display */}
-      <div className="bg-slate-50 rounded-lg border">
-        <div className="border-b bg-slate-100 px-4 py-2 rounded-t-lg">
-          <h2 className="text-sm font-medium text-slate-700">
-            Agent Data (JSON)
+      {/* System Prompt Editor */}
+      <SystemPromptEditor
+        systemPrompt={agentData.llm?.system_prompt || ""}
+        onSave={handleSystemPromptSave}
+        isEditable={true}
+      />
+
+      {/* Full Agent Data (Collapsible) */}
+      <details className="bg-slate-50 rounded-lg border">
+        <summary className="border-b bg-slate-100 px-4 py-2 rounded-t-lg cursor-pointer hover:bg-slate-200 transition-colors">
+          <h2 className="text-sm font-medium text-slate-700 inline">
+            Full Agent Data (JSON) - Click to expand
           </h2>
-        </div>
+        </summary>
         <div className="p-4">
+          <div className="flex justify-end mb-2">
+            <Button
+              onClick={handleCopyJson}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Copy className="h-4 w-4" />
+              {copySuccess ? "Copied!" : "Copy JSON"}
+            </Button>
+          </div>
           <pre className="text-sm text-slate-800 overflow-x-auto whitespace-pre-wrap break-words">
             {JSON.stringify(agentData, null, 2)}
           </pre>
         </div>
-      </div>
+      </details>
     </div>
   );
 }
