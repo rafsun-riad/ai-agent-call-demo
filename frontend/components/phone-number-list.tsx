@@ -1,6 +1,7 @@
 "use client";
 
-import { PhoneNumber, usePhoneNumbers } from "@/hooks/usePhoneNumbers";
+import { useDialCall } from "@/hooks/useDialCall";
+import { usePhoneNumbers } from "@/hooks/usePhoneNumbers";
 import { useState } from "react";
 import Dialpad from "./dialpad";
 import { Button } from "./ui/button";
@@ -8,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 export default function PhoneNumberList() {
   const { data, isLoading, error } = usePhoneNumbers();
+  const dialCallMutation = useDialCall();
   const [selected, setSelected] = useState<string | null>(null);
-  const [selectedData, setSelectedData] = useState<PhoneNumber | null>(null);
   const [toNumber, setToNumber] = useState("");
 
   if (isLoading) {
@@ -53,7 +54,6 @@ export default function PhoneNumberList() {
                   }`}
                   onClick={() => {
                     setSelected(num.number);
-                    setSelectedData(num);
                     setToNumber("");
                   }}
                 >
@@ -103,20 +103,39 @@ export default function PhoneNumberList() {
                 <Button
                   size="lg"
                   className="bg-green-600 hover:bg-green-700 text-white px-8"
-                  onClick={() => {
+                  onClick={async () => {
                     if (!toNumber.trim()) {
                       alert("Please enter a number to call");
                       return;
                     }
-                    console.log("Make call", {
-                      from: selected,
-                      to: toNumber,
-                      fromData: selectedData,
-                    });
+                    if (!selected) {
+                      alert("Please select a phone number");
+                      return;
+                    }
+
+                    try {
+                      const result = await dialCallMutation.mutateAsync({
+                        from_number: selected,
+                        to_number: toNumber.trim(),
+                      });
+
+                      console.log("Call initiated successfully:", result);
+                      alert(
+                        `Call initiated successfully! ${
+                          result.call_id ? `Call ID: ${result.call_id}` : ""
+                        }`
+                      );
+
+                      // Clear the input after successful call
+                      setToNumber("");
+                    } catch (error) {
+                      console.error("Failed to initiate call:", error);
+                      alert("Failed to initiate call. Please try again.");
+                    }
                   }}
-                  disabled={!toNumber.trim()}
+                  disabled={!toNumber.trim() || dialCallMutation.isPending}
                 >
-                  📞 Make Call
+                  {dialCallMutation.isPending ? "Calling..." : "📞 Make Call"}
                 </Button>
               </div>
             </CardContent>
