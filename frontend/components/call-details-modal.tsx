@@ -1,11 +1,13 @@
 "use client";
 
+import { PostCallAnalysisSkeleton } from "@/components/post-call-analysis-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCallDetails } from "@/hooks/useCallDetails";
+import { usePostCallAnalysis } from "@/hooks/usePostCallAnalysis";
 import { format } from "date-fns";
 import { Copy, Download, Phone, X } from "lucide-react";
 
@@ -21,6 +23,11 @@ export default function CallDetailsModal({
   onClose,
 }: CallDetailsModalProps) {
   const { data: call, isLoading, error } = useCallDetails(callId);
+  const {
+    data: postCallAnalysis,
+    isLoading: isPostCallLoading,
+    error: postCallError,
+  } = usePostCallAnalysis(call?.ai_agent_id || null, callId);
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
@@ -137,128 +144,150 @@ export default function CallDetailsModal({
           {call && (
             <>
               {/* Post Call Analysis Section */}
-              <div className="py-6">
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-slate-900 mb-2">
-                    Post Call Analysis
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                  {/* Call Summary */}
-                  <Card className="border-slate-200 shadow-sm">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center space-x-2">
-                        <span className="text-lg">📝</span>
-                        <span>call_summary</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-sm text-slate-700 leading-relaxed">
-                        <p className="mb-3">
-                          <strong>Summary:</strong> Summarize the conversation
-                          in a{" "}
-                          <strong>
-                            clear, concise paragraph under 1500 characters
-                          </strong>
-                          , including:
+              {isPostCallLoading ? (
+                <PostCallAnalysisSkeleton />
+              ) : postCallError ? (
+                <div className="py-6">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                      Post Call Analysis
+                    </h2>
+                  </div>
+                  <Card className="border-red-200 shadow-sm">
+                    <CardContent className="pt-6">
+                      <div className="text-center py-8">
+                        <p className="text-red-600 font-medium mb-2">
+                          Failed to load post call analysis
                         </p>
-                        <ul className="space-y-1 text-slate-600 mb-3">
-                          <li>
-                            • <strong>Purpose of the call</strong> •{" "}
+                        <p className="text-sm text-slate-600">
+                          Please try again later
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : (
+                <div className="py-6">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                      Post Call Analysis
+                    </h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    {/* Call Summary */}
+                    <Card className="border-slate-200 shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center space-x-2">
+                          <span className="text-lg">📝</span>
+                          <span>call_summary</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-sm text-slate-700 leading-relaxed">
+                          <p className="mb-3">
+                            <strong>Summary:</strong> Summarize the conversation
+                            in a{" "}
                             <strong>
-                              Whether the call was completed or not
-                            </strong>{" "}
-                            • <strong>Payment status</strong> •{" "}
-                            <strong>
-                              Date within which they want to make the payment
-                            </strong>{" "}
-                            • <strong>Any clarifications made</strong> If the
-                            call was incomplete...
-                          </li>
-                        </ul>
-                        <div className="mt-4 p-3 bg-slate-50 rounded-lg border">
-                          <p className="text-sm text-slate-800">
-                            {
-                              "The call was incomplete and no valid conversation took place, as the user did not provide any information regarding payment, vehicles, or the purpose of the call."
-                            }
+                              clear, concise paragraph under 1500 characters
+                            </strong>
+                            , including:
+                          </p>
+                          <ul className="space-y-1 text-slate-600 mb-3">
+                            <li>
+                              • <strong>Purpose of the call</strong> •{" "}
+                              <strong>
+                                Whether the call was completed or not
+                              </strong>{" "}
+                              • <strong>Payment status</strong> •{" "}
+                              <strong>
+                                Date within which they want to make the payment
+                              </strong>{" "}
+                              • <strong>Any clarifications made</strong> If the
+                              call was incomplete...
+                            </li>
+                          </ul>
+                          <div className="mt-4 p-3 bg-slate-50 rounded-lg border">
+                            <p className="text-sm text-slate-800">
+                              {postCallAnalysis?.call_summary ||
+                                "The call was incomplete and no valid conversation took place, as the user did not provide any information regarding payment, vehicles, or the purpose of the call."}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Customer Feedback */}
+                    <Card className="border-slate-200 shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center space-x-2">
+                          <span className="text-lg">📝</span>
+                          <span>customer_feedback</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-sm text-slate-700 leading-relaxed">
+                          <p className="mb-3 text-slate-600">
+                            If there is any customer feedback regarding the
+                            service then extract and summarize that feedback
+                            within 2 to 3 lines.
+                          </p>
+                          <div className="mt-4 p-3 bg-slate-50 rounded-lg border">
+                            <p className="text-sm text-slate-800">
+                              {postCallAnalysis?.customer_feedback ||
+                                "There is no customer feedback regarding the service in the provided conversation. The customer has not shared any opinion or experience about the service yet."}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Call Status Grid */}
+                  <Card className="border-slate-200 shadow-sm mb-6">
+                    <CardContent className="pt-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-slate-600">
+                            Status
+                          </p>
+                          {getStatusBadge(call.call_status)}
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-slate-600">
+                            Direction
+                          </p>
+                          <p className="text-sm font-medium text-slate-900 capitalize">
+                            {call.direction ||
+                              "No direction because of the web call."}
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-slate-600">
+                            Type
+                          </p>
+                          <p className="text-sm font-medium text-slate-900">
+                            {call.call_type === "phone_call"
+                              ? "Phone"
+                              : call.call_type === "web_call"
+                              ? "Web"
+                              : call.call_type}
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-slate-600">
+                            Outcome
+                          </p>
+                          <p className="text-sm font-medium text-slate-900 capitalize">
+                            {call.call_finish_reason?.replace(/_/g, " ") ||
+                              "Unknown"}
                           </p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-
-                  {/* Customer Feedback */}
-                  <Card className="border-slate-200 shadow-sm">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center space-x-2">
-                        <span className="text-lg">📝</span>
-                        <span>customer_feedback</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-sm text-slate-700 leading-relaxed">
-                        <p className="mb-3 text-slate-600">
-                          If there is any customer feedback regarding the
-                          service then extract and summarize that feedback
-                          within 2 to 3 lines.
-                        </p>
-                        <div className="mt-4 p-3 bg-slate-50 rounded-lg border">
-                          <p className="text-sm text-slate-800">
-                            {
-                              "There is no customer feedback regarding the service in the provided conversation. The customer has not shared any opinion or experience about the service yet."
-                            }
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </div>
-
-                {/* Call Status Grid */}
-                <Card className="border-slate-200 shadow-sm mb-6">
-                  <CardContent className="pt-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-600">
-                          Status
-                        </p>
-                        {getStatusBadge(call.call_status)}
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-600">
-                          Direction
-                        </p>
-                        <p className="text-sm font-medium text-slate-900 capitalize">
-                          {call.direction ||
-                            "No direction because of the web call."}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-600">
-                          Type
-                        </p>
-                        <p className="text-sm font-medium text-slate-900">
-                          {call.call_type === "phone_call"
-                            ? "Phone"
-                            : call.call_type === "web_call"
-                            ? "Web"
-                            : call.call_type}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-600">
-                          Outcome
-                        </p>
-                        <p className="text-sm font-medium text-slate-900 capitalize">
-                          {call.call_finish_reason?.replace(/_/g, " ") ||
-                            "Unknown"}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              )}
 
               {/* Audio Player Section */}
               {call.recorded_call_audio_url && (
