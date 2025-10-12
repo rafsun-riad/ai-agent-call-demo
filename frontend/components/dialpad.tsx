@@ -55,18 +55,10 @@ export default function Dialpad({ value, onChange }: DialpadProps) {
 
       <div className="flex items-center justify-between mt-3">
         <button
-          className="px-4 py-2 bg-red-50 text-red-700 rounded-md"
+          className="px-4 py-2 bg-red-50 text-red-700 rounded-md hover:bg-red-100"
           onClick={() => onChange("")}
         >
           Clear
-        </button>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-md"
-          onClick={() => {
-            // no-op here; the parent handles make call
-          }}
-        >
-          Make Call
         </button>
       </div>
     </div>
