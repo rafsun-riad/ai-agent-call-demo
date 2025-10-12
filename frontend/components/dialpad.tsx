@@ -47,15 +47,15 @@ export default function Dialpad({ value, onChange }: DialpadProps) {
   }, [value, onChange]);
 
   return (
-    <div className="max-w-xs mx-auto space-y-4">
+    <div className="w-72 mx-auto space-y-4">
       {/* Display Screen */}
       <div className="relative">
         <input
           type="tel"
-          className="w-full p-4 text-2xl font-mono text-center bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full h-14 px-4 text-2xl font-mono text-center bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Enter phone number"
+          placeholder="Enter number"
         />
         {value && (
           <Button
@@ -70,17 +70,19 @@ export default function Dialpad({ value, onChange }: DialpadProps) {
       </div>
 
       {/* Dialpad Grid */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-4">
         {keys.flat().map(({ key, sub }) => (
           <Button
             key={key}
             variant="outline"
-            className="h-16 w-16 flex flex-col items-center justify-center border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all"
+            className="h-16 w-20 flex flex-col items-center justify-center border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all rounded-xl"
             onClick={() => onChange(value + key)}
           >
             <span className="text-xl font-semibold text-slate-900">{key}</span>
             {sub && (
-              <span className="text-xs text-slate-500 font-medium">{sub}</span>
+              <span className="text-xs text-slate-500 font-medium mt-0.5">
+                {sub}
+              </span>
             )}
           </Button>
         ))}
@@ -91,7 +93,7 @@ export default function Dialpad({ value, onChange }: DialpadProps) {
         <Button
           variant="outline"
           size="sm"
-          className="text-slate-600 hover:text-slate-900"
+          className="text-slate-600 hover:text-slate-900 rounded-lg"
           onClick={() => onChange("")}
         >
           Clear All
