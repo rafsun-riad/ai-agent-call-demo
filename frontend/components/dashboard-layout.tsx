@@ -65,6 +65,29 @@ export default function DashboardLayout({
 
           <Button asChild variant="ghost" className="w-full justify-start px-4">
             <Link
+              href="/phone-numbers"
+              className="flex items-center gap-3 w-full text-slate-700"
+            >
+              <Icon>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22 16.92V21a1 1 0 01-1.09 1A19 19 0 013 5.09 1 1 0 014 4h4.09a1 1 0 01.98.8c.12.78.37 1.54.73 2.25a1 1 0 01-.24 1.05L7.91 11.36a16 16 0 006.73 6.73l2.46-2.65a1 1 0 011.05-.24c.71.36 1.47.61 2.25.73a1 1 0 01.8.98z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </Icon>
+              Phone Numbers
+            </Link>
+          </Button>
+
+          <Button asChild variant="ghost" className="w-full justify-start px-4">
+            <Link
               href="/calls"
               className="flex items-center gap-3 w-full text-slate-700"
             >
