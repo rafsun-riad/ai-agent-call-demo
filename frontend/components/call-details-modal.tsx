@@ -273,13 +273,19 @@ export default function CallDetailsModal({
                     <div className="space-y-4">
                       <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
                         <div className="flex-1">
-                          <audio 
-                            controls 
+                          <audio
+                            controls
                             className="w-full h-10"
                             preload="metadata"
                           >
-                            <source src={call.recorded_call_audio_url} type="audio/ogg" />
-                            <source src={call.recorded_call_audio_url} type="audio/mpeg" />
+                            <source
+                              src={call.recorded_call_audio_url}
+                              type="audio/ogg"
+                            />
+                            <source
+                              src={call.recorded_call_audio_url}
+                              type="audio/mpeg"
+                            />
                             Your browser does not support the audio element.
                           </audio>
                         </div>
@@ -287,7 +293,7 @@ export default function CallDetailsModal({
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            const link = document.createElement('a');
+                            const link = document.createElement("a");
                             link.href = call.recorded_call_audio_url;
                             link.download = `call-recording-${call._id}.ogg`;
                             document.body.appendChild(link);
