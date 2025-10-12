@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import Dialpad from "./dialpad";
+import PhoneNumbersSkeleton from "./phone-numbers-skeleton";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
@@ -58,11 +59,7 @@ export default function PhoneNumberList() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-slate-600">Loading phone numbers...</div>
-      </div>
-    );
+    return <PhoneNumbersSkeleton />;
   }
 
   if (error) {
