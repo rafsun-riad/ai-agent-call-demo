@@ -1,5 +1,6 @@
 "use client";
 
+import CallDetailsModal from "@/components/call-details-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -75,6 +76,10 @@ export default function CallsPageContent() {
   const [visibleColumns, setVisibleColumns] = useState<ColumnKey[]>(
     DEFAULT_VISIBLE_COLUMNS
   );
+
+  // Modal state
+  const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // API query parameters
   const queryParams: CallsQueryParams = useMemo(() => {
@@ -156,6 +161,17 @@ export default function CallsPageContent() {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
+  };
+
+  // Handle modal open/close
+  const handleRowClick = (callId: string) => {
+    setSelectedCallId(callId);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedCallId(null);
   };
 
   if (error) {
@@ -309,7 +325,8 @@ export default function CallsPageContent() {
               allCalls.map((call) => (
                 <TableRow
                   key={call._id}
-                  className="hover:bg-slate-50 border-b border-slate-100"
+                  className="hover:bg-slate-50 border-b border-slate-100 cursor-pointer"
+                  onClick={() => handleRowClick(call._id)}
                 >
                   {visibleColumns.map((column) => (
                     <TableCell key={column} className="px-4 py-3 text-sm">
@@ -389,6 +406,13 @@ export default function CallsPageContent() {
           </div>
         )}
       </div>
+
+      {/* Call Details Modal */}
+      <CallDetailsModal
+        callId={selectedCallId}
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+      />
     </div>
   );
 }
