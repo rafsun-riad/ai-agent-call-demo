@@ -25,5 +25,13 @@ export function usePostCallAnalysis(
       return response.data as PostCallAnalysisResult;
     },
     enabled: !!aiAgentId && !!callId,
+    retry: (failureCount, error) => {
+      // Don't retry if it's a 404 or 500 from the external API
+      if (error?.message?.includes("500") || error?.message?.includes("404")) {
+        return false;
+      }
+      // Retry up to 2 times for other errors
+      return failureCount < 2;
+    },
   });
 }

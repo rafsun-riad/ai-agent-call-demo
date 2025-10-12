@@ -5,10 +5,10 @@ const TOKEN = `API_v7WxPAfwGj-rlMD-Riym2Abt8uzyr_scyV2aGgEXA-jAmiqhz6eGTMm42Qand
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ai_agent_id: string; call_id: string } }
+  { params }: { params: Promise<{ ai_agent_id: string; call_id: string }> }
 ) {
   try {
-    const { ai_agent_id, call_id } = params;
+    const { ai_agent_id, call_id } = await params;
 
     const response = await fetch(
       `${BASE_URL}/v2/ai-agents/${ai_agent_id}/postcall-analysis/results/${call_id}`,
@@ -22,7 +22,13 @@ export async function GET(
     );
 
     if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
+      const errorText = await response.text();
+      console.error(
+        `Post call analysis API error: ${response.status} - ${errorText}`
+      );
+      throw new Error(
+        `API responded with status: ${response.status} - ${errorText}`
+      );
     }
 
     const data = await response.json();

@@ -5,10 +5,10 @@ const TOKEN = `API_v7WxPAfwGj-rlMD-Riym2Abt8uzyr_scyV2aGgEXA-jAmiqhz6eGTMm42Qand
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { call_id: string } }
+  { params }: { params: Promise<{ call_id: string }> }
 ) {
   try {
-    const { call_id } = params;
+    const { call_id } = await params;
 
     const response = await fetch(`${BASE_URL}/v1/calls/${call_id}`, {
       method: "GET",
