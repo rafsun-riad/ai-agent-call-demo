@@ -9,26 +9,10 @@ interface DialpadProps {
 }
 
 const keys = [
-  [
-    { key: "1", sub: "" },
-    { key: "2", sub: "ABC" },
-    { key: "3", sub: "DEF" },
-  ],
-  [
-    { key: "4", sub: "GHI" },
-    { key: "5", sub: "JKL" },
-    { key: "6", sub: "MNO" },
-  ],
-  [
-    { key: "7", sub: "PQRS" },
-    { key: "8", sub: "TUV" },
-    { key: "9", sub: "WXYZ" },
-  ],
-  [
-    { key: "*", sub: "" },
-    { key: "0", sub: "+" },
-    { key: "#", sub: "" },
-  ],
+  ["1", "2", "3"],
+  ["4", "5", "6"],
+  ["7", "8", "9"],
+  ["*", "0", "#"],
 ];
 
 export default function Dialpad({ value, onChange }: DialpadProps) {
@@ -71,19 +55,14 @@ export default function Dialpad({ value, onChange }: DialpadProps) {
 
       {/* Dialpad Grid */}
       <div className="grid grid-cols-3 gap-4">
-        {keys.flat().map(({ key, sub }) => (
+        {keys.flat().map((key) => (
           <Button
             key={key}
             variant="outline"
-            className="h-16 w-20 flex flex-col items-center justify-center border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all rounded-xl"
+            className="h-16 w-20 flex items-center justify-center border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all rounded-xl"
             onClick={() => onChange(value + key)}
           >
             <span className="text-xl font-semibold text-slate-900">{key}</span>
-            {sub && (
-              <span className="text-xs text-slate-500 font-medium mt-0.5">
-                {sub}
-              </span>
-            )}
           </Button>
         ))}
       </div>
