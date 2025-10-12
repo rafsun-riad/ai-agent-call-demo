@@ -50,7 +50,7 @@ export default function Settings() {
               <Input
                 id="organization-name"
                 placeholder="Enter your organization name"
-                defaultValue="ADN Technologies"
+                defaultValue="ADN Telecom"
               />
             </div>
 
