@@ -26,6 +26,19 @@ export async function GET(
       console.error(
         `Post call analysis API error: ${response.status} - ${errorText}`
       );
+
+      // If it's a 500 error, return a specific response indicating no data available
+      if (response.status === 500) {
+        return NextResponse.json(
+          {
+            message: "Post call analysis is not available for this call",
+            available: false,
+          },
+          { status: 200 }
+        );
+      }
+
+      // For other errors, throw normally
       throw new Error(
         `API responded with status: ${response.status} - ${errorText}`
       );

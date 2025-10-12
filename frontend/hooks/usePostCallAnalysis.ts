@@ -1,11 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "./useApi";
 
+export interface PostCallAnalysisItem {
+  type: string;
+  name: string;
+  description: string;
+  analysis_prompt: string;
+  result: string;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+  model?: string;
+  temperature?: number;
+}
+
 export interface PostCallAnalysisResult {
-  call_summary?: string;
-  customer_feedback?: string;
-  // Add other fields as needed based on the API response
-  [key: string]: unknown;
+  call_id?: string;
+  ai_agent_id?: string;
+  items?: PostCallAnalysisItem[];
+  message?: string;
+  available?: boolean;
 }
 
 export function usePostCallAnalysis(
@@ -22,7 +38,16 @@ export function usePostCallAnalysis(
       const response = await get(
         `/v2/ai-agents/${aiAgentId}/postcall-analysis/results/${callId}`
       );
-      return response.data as PostCallAnalysisResult;
+
+      // Handle the nested data structure from the external API
+      const responseData = response.data;
+      if (responseData?.data) {
+        // If the response has a nested 'data' property, use that
+        return responseData.data as PostCallAnalysisResult;
+      }
+
+      // Otherwise return the response directly
+      return responseData as PostCallAnalysisResult;
     },
     enabled: !!aiAgentId && !!callId,
     retry: (failureCount, error) => {
