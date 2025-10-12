@@ -260,6 +260,54 @@ export default function CallDetailsModal({
                 </Card>
               </div>
 
+              {/* Audio Player Section */}
+              {call.recorded_call_audio_url && (
+                <Card className="border-slate-200 shadow-sm mb-6">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center space-x-2">
+                      <span className="text-lg">🎵</span>
+                      <span>Call Recording</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
+                        <div className="flex-1">
+                          <audio 
+                            controls 
+                            className="w-full h-10"
+                            preload="metadata"
+                          >
+                            <source src={call.recorded_call_audio_url} type="audio/ogg" />
+                            <source src={call.recorded_call_audio_url} type="audio/mpeg" />
+                            Your browser does not support the audio element.
+                          </audio>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = call.recorded_call_audio_url;
+                            link.download = `call-recording-${call._id}.ogg`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                          className="h-9 shrink-0"
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </Button>
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        File: {call.recorded_call_audio_url}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Main Content Tabs */}
               <Tabs
                 defaultValue="transcription"
@@ -360,12 +408,7 @@ export default function CallDetailsModal({
         {call && (
           <div className="flex justify-between items-center px-6 py-4 border-t bg-white">
             <div className="flex space-x-3">
-              {call.recorded_call_audio_url && (
-                <Button variant="outline" size="sm" className="h-9">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Audio
-                </Button>
-              )}
+              {/* Audio controls moved to dedicated section above */}
             </div>
             <div className="flex space-x-3">
               <Button
