@@ -2,15 +2,8 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCallDetails } from "@/hooks/useCallDetails";
 import { format } from "date-fns";
@@ -63,200 +56,336 @@ export default function CallDetailsModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="max-w-[95vw] w-[95vw] min-w-[1200px] max-h-[95vh] overflow-hidden flex flex-col p-0 sm:max-w-[95vw]"
         showCloseButton={false}
       >
-        <div className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <Phone className="h-5 w-5 text-blue-600" />
+        {/* Header */}
+        <div className="flex flex-row items-center justify-between px-6 py-4 border-b bg-slate-50/50">
+          <div className="flex items-center space-x-4">
+            <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Phone className="h-6 w-6 text-white" />
             </div>
             <div>
-              <DialogTitle className="text-xl font-semibold">
+              <DialogTitle className="text-xl font-semibold text-slate-900">
                 {call?.call_start_time
-                  ? format(new Date(call.call_start_time), "dd/MM/yyyy HH:mm")
+                  ? format(
+                      new Date(call.call_start_time),
+                      "MMM dd, yyyy • HH:mm"
+                    )
                   : "Loading..."}{" "}
-                {call?.call_type === "web_call" ? "web_call" : call?.call_type}
+                {call?.call_type === "web_call"
+                  ? "• Web Call"
+                  : call?.call_type
+                  ? `• ${call.call_type}`
+                  : ""}
               </DialogTitle>
               {call && (
-                <div className="flex items-center space-x-4 text-sm text-slate-600 mt-1">
-                  <span>
-                    Agent: {call.ai_agent_id.slice(0, 8)}...
-                    {call.ai_agent_id.slice(-2)}
+                <div className="flex items-center space-x-6 text-sm text-slate-600 mt-1">
+                  <span className="flex items-center space-x-1">
+                    <span className="font-medium">Agent:</span>
+                    <span>
+                      {call.ai_agent_id.slice(0, 8)}...
+                      {call.ai_agent_id.slice(-4)}
+                    </span>
                   </span>
-                  <span>
-                    Call ID: {call._id.slice(0, 8)}...{call._id.slice(-2)}
+                  <span className="flex items-center space-x-1">
+                    <span className="font-medium">Duration:</span>
+                    <span>{formatDuration(call.call_duration_seconds)}</span>
                   </span>
-                  <span>
-                    Duration: {formatDuration(call.call_duration_seconds)}
+                  <span className="flex items-center space-x-1">
+                    <span className="font-medium">ID:</span>
+                    <span className="font-mono">
+                      {call._id.slice(0, 8)}...{call._id.slice(-4)}
+                    </span>
                   </span>
                 </div>
               )}
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-8 w-8 p-0"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-sm text-slate-600">Loading call details...</p>
+        {/* Content Area */}
+        <div className="flex flex-col flex-1 overflow-y-auto px-6">
+          {isLoading && (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-slate-600">Loading call details...</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {error && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <p className="text-red-600 mb-2">Failed to load call details</p>
-              <p className="text-sm text-slate-600">Please try again later</p>
+          {error && (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <p className="text-red-600 mb-2 font-medium">
+                  Failed to load call details
+                </p>
+                <p className="text-sm text-slate-600">Please try again later</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {call && (
-          <>
-            {/* Call Analysis Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Conversation Analysis</CardTitle>
-                <CardDescription>
-                  Call outcome and status information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="h-3 w-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">Call Successful</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="h-3 w-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm capitalize">
-                      {call.call_finish_reason?.replace(/_/g, " ") ||
-                        "Unknown reason"}
-                    </span>
-                  </div>
+          {call && (
+            <>
+              {/* Post Call Analysis Section */}
+              <div className="py-6">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                    Post Call Analysis
+                  </h2>
                 </div>
 
-                {/* Status and Details */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium text-slate-700 mb-1">
-                      Status
-                    </p>
-                    {getStatusBadge(call.call_status)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-700 mb-1">
-                      Direction
-                    </p>
-                    <p className="text-sm text-slate-900 capitalize">
-                      {call.direction}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-700 mb-1">
-                      Type
-                    </p>
-                    <p className="text-sm text-slate-900">
-                      {call.call_type === "phone_call"
-                        ? "Phone"
-                        : call.call_type === "web_call"
-                        ? "Web"
-                        : call.call_type}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Separator />
-
-            {/* Tab Navigation and Content */}
-            <Tabs defaultValue="transcription" className="flex flex-col flex-1">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="transcription">Transcription</TabsTrigger>
-                <TabsTrigger value="details">Detail Logs</TabsTrigger>
-              </TabsList>
-
-              <TabsContent
-                value="transcription"
-                className="flex-1 overflow-auto mt-4"
-              >
-                <div className="space-y-4 pb-4">
-                  {call.messages?.length > 0 ? (
-                    call.messages.map((message, index) => (
-                      <Card key={index}>
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium capitalize">
-                            {message.role === "agent" ? "Agent" : "User"}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-slate-900">
-                            {message.content}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))
-                  ) : (
-                    <Card>
-                      <CardContent className="pt-6">
-                        <p className="text-sm text-slate-600 text-center">
-                          No transcription available
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                  {/* Call Summary */}
+                  <Card className="border-slate-200 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center space-x-2">
+                        <span className="text-lg">📝</span>
+                        <span>call_summary</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm text-slate-700 leading-relaxed">
+                        <p className="mb-3">
+                          <strong>Summary:</strong> Summarize the conversation
+                          in a{" "}
+                          <strong>
+                            clear, concise paragraph under 1500 characters
+                          </strong>
+                          , including:
                         </p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </TabsContent>
+                        <ul className="space-y-1 text-slate-600 mb-3">
+                          <li>
+                            • <strong>Purpose of the call</strong> •{" "}
+                            <strong>
+                              Whether the call was completed or not
+                            </strong>{" "}
+                            • <strong>Payment status</strong> •{" "}
+                            <strong>
+                              Date within which they want to make the payment
+                            </strong>{" "}
+                            • <strong>Any clarifications made</strong> If the
+                            call was incomplete...
+                          </li>
+                        </ul>
+                        <div className="mt-4 p-3 bg-slate-50 rounded-lg border">
+                          <p className="text-sm text-slate-800">
+                            {
+                              "The call was incomplete and no valid conversation took place, as the user did not provide any information regarding payment, vehicles, or the purpose of the call."
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-              <TabsContent
-                value="details"
-                className="flex-1 overflow-auto mt-4"
-              >
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Raw Call Data</CardTitle>
-                    <CardDescription>
-                      Complete JSON representation of the call object
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm overflow-auto">
-                      <pre>{JSON.stringify(call, null, 2)}</pre>
+                  {/* Customer Feedback */}
+                  <Card className="border-slate-200 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center space-x-2">
+                        <span className="text-lg">📝</span>
+                        <span>customer_feedback</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm text-slate-700 leading-relaxed">
+                        <p className="mb-3 text-slate-600">
+                          If there is any customer feedback regarding the
+                          service then extract and summarize that feedback
+                          within 2 to 3 lines.
+                        </p>
+                        <div className="mt-4 p-3 bg-slate-50 rounded-lg border">
+                          <p className="text-sm text-slate-800">
+                            {
+                              "There is no customer feedback regarding the service in the provided conversation. The customer has not shared any opinion or experience about the service yet."
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Call Status Grid */}
+                <Card className="border-slate-200 shadow-sm mb-6">
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-slate-600">
+                          Status
+                        </p>
+                        {getStatusBadge(call.call_status)}
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-slate-600">
+                          Direction
+                        </p>
+                        <p className="text-sm font-medium text-slate-900 capitalize">
+                          {call.direction}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-slate-600">
+                          Type
+                        </p>
+                        <p className="text-sm font-medium text-slate-900">
+                          {call.call_type === "phone_call"
+                            ? "Phone"
+                            : call.call_type === "web_call"
+                            ? "Web"
+                            : call.call_type}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-slate-600">
+                          Outcome
+                        </p>
+                        <p className="text-sm font-medium text-slate-900 capitalize">
+                          {call.call_finish_reason?.replace(/_/g, " ") ||
+                            "Unknown"}
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
-            </Tabs>
+              </div>
 
-            {/* Footer Actions */}
-            <div className="flex justify-between items-center pt-4 border-t">
-              <div className="flex space-x-2">
-                {call.recorded_call_audio_url && (
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Audio
-                  </Button>
-                )}
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(call._id)}
+              {/* Main Content Tabs */}
+              <Tabs
+                defaultValue="transcription"
+                className="flex flex-col flex-1 min-h-0"
+              >
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger
+                    value="transcription"
+                    className="text-sm font-medium"
+                  >
+                    Transcription
+                  </TabsTrigger>
+                  <TabsTrigger value="details" className="text-sm font-medium">
+                    Detail Logs
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent
+                  value="transcription"
+                  className="flex-1 min-h-0 mt-0"
                 >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy Call ID
+                  <Card className="border-slate-200 shadow-sm">
+                    <CardContent className="max-h-[400px] overflow-y-auto pt-6">
+                      {call.messages?.length > 0 ? (
+                        <div className="space-y-4">
+                          {call.messages.map((message, index) => (
+                            <div
+                              key={index}
+                              className={`flex ${
+                                message.role === "agent"
+                                  ? "justify-start"
+                                  : "justify-end"
+                              }`}
+                            >
+                              <div
+                                className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                                  message.role === "agent"
+                                    ? "bg-blue-50 border border-blue-200"
+                                    : "bg-slate-100 border border-slate-200"
+                                }`}
+                              >
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <span
+                                    className={`text-xs font-semibold uppercase tracking-wide ${
+                                      message.role === "agent"
+                                        ? "text-blue-700"
+                                        : "text-slate-700"
+                                    }`}
+                                  >
+                                    {message.role === "agent"
+                                      ? "AI Agent"
+                                      : "Caller"}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-slate-900 leading-relaxed">
+                                  {message.content}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-32">
+                          <div className="text-center">
+                            <div className="h-12 w-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                              <Phone className="h-6 w-6 text-slate-400" />
+                            </div>
+                            <p className="text-slate-600 font-medium">
+                              No transcription available
+                            </p>
+                            <p className="text-sm text-slate-500 mt-1">
+                              This call may not have been transcribed
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="details" className="flex-1 min-h-0 mt-0">
+                  <Card className="border-slate-200 shadow-sm">
+                    <CardContent className="max-h-[400px] overflow-y-auto pt-6">
+                      <div className="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-xs leading-relaxed">
+                        <pre className="whitespace-pre-wrap">
+                          {JSON.stringify(call, null, 2)}
+                        </pre>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
+        </div>
+
+        {/* Fixed Footer */}
+        {call && (
+          <div className="flex justify-between items-center px-6 py-4 border-t bg-white">
+            <div className="flex space-x-3">
+              {call.recorded_call_audio_url && (
+                <Button variant="outline" size="sm" className="h-9">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Audio
                 </Button>
-              </div>
+              )}
             </div>
-          </>
+            <div className="flex space-x-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => copyToClipboard(call._id)}
+                className="h-9"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copy Call ID
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onClose}
+                className="h-9"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
         )}
       </DialogContent>
     </Dialog>
