@@ -66,9 +66,6 @@ const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
   "direction",
 ];
 
-// Mock data for demonstration
-const MOCK_CALLS: never[] = [];
-
 export default function CallsPageContent() {
   const [selectedAgent, setSelectedAgent] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -314,56 +311,57 @@ export default function CallsPageContent() {
                   key={call._id}
                   className="hover:bg-slate-50 border-b border-slate-100"
                 >
-                  {visibleColumns.includes("callStartTime") && (
-                    <TableCell className="px-4 py-3 text-sm">
-                      {format(
-                        new Date(call.call_start_time),
-                        "dd MMMM, yyyy HH:mm"
+                  {visibleColumns.map((column) => (
+                    <TableCell key={column} className="px-4 py-3 text-sm">
+                      {column === "callStartTime" && (
+                        <span>
+                          {format(
+                            new Date(call.call_start_time),
+                            "dd MMMM, yyyy HH:mm"
+                          )}
+                        </span>
+                      )}
+                      {column === "aiAgentName" && (
+                        <span className="font-medium text-slate-900">
+                          {call.ai_agent_name}
+                        </span>
+                      )}
+                      {column === "duration" && (
+                        <span>
+                          {formatDuration(call.call_duration_seconds)}
+                        </span>
+                      )}
+                      {column === "callType" && (
+                        <span>
+                          {call.call_type === "phone_call"
+                            ? "Phone"
+                            : call.call_type === "web_call"
+                            ? "Web"
+                            : call.call_type}
+                        </span>
+                      )}
+                      {column === "callStatus" &&
+                        getStatusBadge(call.call_status)}
+                      {column === "callFinishReason" && (
+                        <span className="text-slate-600 capitalize">
+                          {call.call_finish_reason?.replace(/_/g, " ") || "N/A"}
+                        </span>
+                      )}
+                      {column === "fromNumber" && (
+                        <span className="font-mono">
+                          {call.from_number || "N/A"}
+                        </span>
+                      )}
+                      {column === "toNumber" && (
+                        <span className="font-mono">
+                          {call.to_number || "N/A"}
+                        </span>
+                      )}
+                      {column === "direction" && (
+                        <span className="capitalize">{call.direction}</span>
                       )}
                     </TableCell>
-                  )}
-                  {visibleColumns.includes("aiAgentName") && (
-                    <TableCell className="px-4 py-3 text-sm font-medium text-slate-900">
-                      {call.ai_agent_name}
-                    </TableCell>
-                  )}
-                  {visibleColumns.includes("duration") && (
-                    <TableCell className="px-4 py-3 text-sm">
-                      {formatDuration(call.call_duration_seconds)}
-                    </TableCell>
-                  )}
-                  {visibleColumns.includes("callType") && (
-                    <TableCell className="px-4 py-3 text-sm">
-                      {call.call_type === "phone_call"
-                        ? "Phone"
-                        : call.call_type}
-                    </TableCell>
-                  )}
-                  {visibleColumns.includes("callStatus") && (
-                    <TableCell className="px-4 py-3">
-                      {getStatusBadge(call.call_status)}
-                    </TableCell>
-                  )}
-                  {visibleColumns.includes("callFinishReason") && (
-                    <TableCell className="px-4 py-3 text-sm text-slate-600">
-                      {call.call_finish_reason?.replace(/_/g, " ") || "N/A"}
-                    </TableCell>
-                  )}
-                  {visibleColumns.includes("fromNumber") && (
-                    <TableCell className="px-4 py-3 text-sm font-mono">
-                      {call.from_number || "N/A"}
-                    </TableCell>
-                  )}
-                  {visibleColumns.includes("toNumber") && (
-                    <TableCell className="px-4 py-3 text-sm font-mono">
-                      {call.to_number || "N/A"}
-                    </TableCell>
-                  )}
-                  {visibleColumns.includes("direction") && (
-                    <TableCell className="px-4 py-3 text-sm capitalize">
-                      {call.direction}
-                    </TableCell>
-                  )}
+                  ))}
                 </TableRow>
               ))
             )}
