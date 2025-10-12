@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { Button } from "./ui/button";
 
 interface DialpadProps {
   value: string;
@@ -8,19 +9,33 @@ interface DialpadProps {
 }
 
 const keys = [
-  ["1", "2", "3"],
-  ["4", "5", "6"],
-  ["7", "8", "9"],
-  ["*", "0", "#"],
+  [
+    { key: "1", sub: "" },
+    { key: "2", sub: "ABC" },
+    { key: "3", sub: "DEF" },
+  ],
+  [
+    { key: "4", sub: "GHI" },
+    { key: "5", sub: "JKL" },
+    { key: "6", sub: "MNO" },
+  ],
+  [
+    { key: "7", sub: "PQRS" },
+    { key: "8", sub: "TUV" },
+    { key: "9", sub: "WXYZ" },
+  ],
+  [
+    { key: "*", sub: "" },
+    { key: "0", sub: "+" },
+    { key: "#", sub: "" },
+  ],
 ];
 
 export default function Dialpad({ value, onChange }: DialpadProps) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       const k = e.key;
-      if (/^[0-9*#]$/.test(k)) {
+      if (/^[0-9*#+]$/.test(k)) {
         onChange(value + k);
       } else if (k === "Backspace") {
         onChange(value.slice(0, -1));
@@ -32,34 +47,55 @@ export default function Dialpad({ value, onChange }: DialpadProps) {
   }, [value, onChange]);
 
   return (
-    <div className="space-y-3">
-      <input
-        ref={inputRef}
-        className="w-full p-3 text-xl rounded-lg border text-center"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Enter number"
-      />
-
-      <div className="grid grid-cols-3 gap-2">
-        {keys.flat().map((k) => (
-          <button
-            key={k}
-            className="p-4 bg-slate-100 rounded-lg text-lg font-medium hover:bg-slate-200"
-            onClick={() => onChange(value + k)}
+    <div className="max-w-xs mx-auto space-y-4">
+      {/* Display Screen */}
+      <div className="relative">
+        <input
+          type="tel"
+          className="w-full p-4 text-2xl font-mono text-center bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Enter phone number"
+        />
+        {value && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-slate-200"
+            onClick={() => onChange(value.slice(0, -1))}
           >
-            {k}
-          </button>
+            ⌫
+          </Button>
+        )}
+      </div>
+
+      {/* Dialpad Grid */}
+      <div className="grid grid-cols-3 gap-3">
+        {keys.flat().map(({ key, sub }) => (
+          <Button
+            key={key}
+            variant="outline"
+            className="h-16 w-16 flex flex-col items-center justify-center border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all"
+            onClick={() => onChange(value + key)}
+          >
+            <span className="text-xl font-semibold text-slate-900">{key}</span>
+            {sub && (
+              <span className="text-xs text-slate-500 font-medium">{sub}</span>
+            )}
+          </Button>
         ))}
       </div>
 
-      <div className="flex items-center justify-between mt-3">
-        <button
-          className="px-4 py-2 bg-red-50 text-red-700 rounded-md hover:bg-red-100"
+      {/* Action Buttons */}
+      <div className="flex justify-center pt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-slate-600 hover:text-slate-900"
           onClick={() => onChange("")}
         >
-          Clear
-        </button>
+          Clear All
+        </Button>
       </div>
     </div>
   );
