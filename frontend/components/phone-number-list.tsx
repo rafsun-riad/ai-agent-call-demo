@@ -13,7 +13,10 @@ export default function PhoneNumberList() {
   if (isLoading) return <div>Loading phone numbers...</div>;
   if (error) return <div>Failed to load phone numbers</div>;
 
-  const numbers = data || [];
+  let numbers = data || [];
+  if (!Array.isArray(numbers)) {
+    numbers = [numbers];
+  }
 
   return (
     <div className="space-y-4">
