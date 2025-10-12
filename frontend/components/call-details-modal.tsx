@@ -230,7 +230,8 @@ export default function CallDetailsModal({
                           Direction
                         </p>
                         <p className="text-sm font-medium text-slate-900 capitalize">
-                          {call.direction}
+                          {call.direction ||
+                            "No direction because of the web call."}
                         </p>
                       </div>
                       <div className="space-y-2">
