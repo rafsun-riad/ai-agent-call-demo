@@ -346,7 +346,7 @@ export default function CallsPageContent() {
                   )}
                   {visibleColumns.includes("callFinishReason") && (
                     <TableCell className="px-4 py-3 text-sm text-slate-600">
-                      {call.call_finish_reason.replace(/_/g, " ")}
+                      {call.call_finish_reason?.replace(/_/g, " ") || "N/A"}
                     </TableCell>
                   )}
                   {visibleColumns.includes("fromNumber") && (

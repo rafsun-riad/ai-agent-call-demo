@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = "https://6db9-45-123-220-68.ngrok-free.app";
+const BASE_URL = "https://api.verbex.ai";
+const TOKEN = `API_v7WxPAfwGj-rlMD-Riym2Abt8uzyr_scyV2aGgEXA-jAmiqhz6eGTMm42Qandw3r`;
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,16 +13,13 @@ export async function GET(request: NextRequest) {
       params.append(key, value);
     });
 
-    const response = await fetch(
-      `${API_BASE_URL}/v1/calls/?${params.toString()}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      }
-    );
+    const response = await fetch(`${BASE_URL}/v1/calls/?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${TOKEN}`,
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`API responded with status: ${response.status}`);
