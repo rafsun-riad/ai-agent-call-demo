@@ -29,8 +29,9 @@ export default function Dashboard() {
             size="sm"
             variant="default"
             className="bg-black text-white hover:bg-slate-800"
+            asChild
           >
-            Start Call
+            <Link href="/phone-numbers">Start Call</Link>
           </Button>
         </>
       }
