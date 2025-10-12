@@ -10,7 +10,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 
 export default function Settings() {
   return (
@@ -212,59 +211,6 @@ export default function Settings() {
                 type="email"
                 placeholder="admin@example.com"
                 defaultValue="admin@adntech.com"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* API Configuration */}
-        <Card>
-          <CardHeader>
-            <CardTitle>API Configuration</CardTitle>
-            <CardDescription>
-              Manage API keys and integration settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="api-endpoint">API Endpoint</Label>
-              <Input
-                id="api-endpoint"
-                placeholder="https://api.verbex.ai"
-                defaultValue="https://api.verbex.ai"
-                readOnly
-                className="bg-slate-50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="api-key">API Key</Label>
-              <Input
-                id="api-key"
-                type="password"
-                placeholder="Enter your API key"
-                defaultValue="••••••••••••••••••••••••••••••••"
-                readOnly
-                className="bg-slate-50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="webhook-url">Webhook URL</Label>
-              <Input
-                id="webhook-url"
-                placeholder="https://your-domain.com/webhook"
-                defaultValue=""
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="custom-instructions">Custom Instructions</Label>
-              <Textarea
-                id="custom-instructions"
-                placeholder="Enter any custom instructions for your AI agents..."
-                className="min-h-[100px]"
-                defaultValue="Always be polite and professional. Confirm customer details before proceeding."
               />
             </div>
           </CardContent>
