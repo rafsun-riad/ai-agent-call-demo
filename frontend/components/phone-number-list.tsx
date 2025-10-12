@@ -1,17 +1,61 @@
 "use client";
 
-import { useDialCall } from "@/hooks/useDialCall";
+import { useApi } from "@/hooks/useApi";
 import { usePhoneNumbers } from "@/hooks/usePhoneNumbers";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import Dialpad from "./dialpad";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
+interface DialCallRequest {
+  from_number: string;
+  to_number: string;
+}
+
+interface DialCallResponse {
+  call_id?: string;
+  status?: string;
+  message?: string;
+  [key: string]: unknown;
+}
+
 export default function PhoneNumberList() {
   const { data, isLoading, error } = usePhoneNumbers();
-  const dialCallMutation = useDialCall();
+  const { post } = useApi();
   const [selected, setSelected] = useState<string | null>(null);
   const [toNumber, setToNumber] = useState("");
+
+  const { mutate: makeCall, isPending } = useMutation({
+    mutationFn: async (data: DialCallRequest): Promise<DialCallResponse> => {
+      const response = await post("/v1/calls/dial-outbound-phone-call", data);
+      return response.data as DialCallResponse;
+    },
+    onMutate: (variables) => {
+      const toastId = toast.loading(
+        `Initiating call from ${variables.from_number} to ${variables.to_number}...`
+      );
+      return {
+        id: toastId,
+        from_number: variables.from_number,
+        to_number: variables.to_number,
+      };
+    },
+    onSuccess: (data, variables, context) => {
+      toast.success("Call initiated successfully!", { id: context.id });
+      // Clear the input after successful call
+      setToNumber("");
+    },
+    onError: (error: unknown, variables, context) => {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to initiate call. Please try again.";
+
+      toast.error(errorMessage, { id: context?.id });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -113,29 +157,14 @@ export default function PhoneNumberList() {
                       return;
                     }
 
-                    try {
-                      const result = await dialCallMutation.mutateAsync({
-                        from_number: selected,
-                        to_number: toNumber.trim(),
-                      });
-
-                      console.log("Call initiated successfully:", result);
-                      alert(
-                        `Call initiated successfully! ${
-                          result.call_id ? `Call ID: ${result.call_id}` : ""
-                        }`
-                      );
-
-                      // Clear the input after successful call
-                      setToNumber("");
-                    } catch (error) {
-                      console.error("Failed to initiate call:", error);
-                      alert("Failed to initiate call. Please try again.");
-                    }
+                    makeCall({
+                      from_number: selected,
+                      to_number: toNumber.trim(),
+                    });
                   }}
-                  disabled={!toNumber.trim() || dialCallMutation.isPending}
+                  disabled={!toNumber.trim() || isPending}
                 >
-                  {dialCallMutation.isPending ? "Calling..." : "📞 Make Call"}
+                  {isPending ? "Calling..." : "📞 Make Call"}
                 </Button>
               </div>
             </CardContent>
