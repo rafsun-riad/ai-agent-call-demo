@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
 
 export default function Dashboard() {
   return (
@@ -19,9 +20,11 @@ export default function Dashboard() {
             variant="outline"
             size="sm"
             className="text-slate-900 border-slate-300 bg-white hover:bg-slate-100"
+            asChild
           >
-            Call Logs
+            <Link href="/calls">Call Logs</Link>
           </Button>
+
           <Button
             size="sm"
             variant="default"
