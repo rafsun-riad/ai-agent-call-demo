@@ -3,68 +3,41 @@
 export default function CallsTableSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Stats Card Skeleton */}
-      <div className="bg-white p-6 rounded-lg border">
-        <div className="flex items-center space-x-3">
-          <div className="h-8 w-8 bg-slate-200 rounded animate-pulse"></div>
-          <div>
-            <div className="h-4 bg-slate-200 rounded w-16 animate-pulse mb-2"></div>
-            <div className="h-8 bg-slate-200 rounded w-12 animate-pulse"></div>
-          </div>
+      {/* Header with inline filters skeleton */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="h-7 bg-slate-200 rounded-md w-24 animate-pulse"></div>
         </div>
-      </div>
 
-      {/* Filters Section Skeleton */}
-      <div className="bg-white p-6 rounded-lg border">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* AI Agent Select */}
-          <div>
-            <div className="h-4 bg-slate-200 rounded w-16 animate-pulse mb-2"></div>
-            <div className="h-10 bg-slate-200 rounded animate-pulse"></div>
-          </div>
-
-          {/* Date Picker */}
-          <div>
-            <div className="h-4 bg-slate-200 rounded w-20 animate-pulse mb-2"></div>
-            <div className="h-10 bg-slate-200 rounded animate-pulse"></div>
-          </div>
-
-          {/* Column Selector */}
-          <div>
-            <div className="h-4 bg-slate-200 rounded w-24 animate-pulse mb-2"></div>
-            <div className="h-10 bg-slate-200 rounded animate-pulse"></div>
-          </div>
-
-          {/* Refresh Button */}
-          <div>
-            <div className="h-4 bg-slate-200 rounded w-12 animate-pulse mb-2"></div>
-            <div className="h-10 bg-slate-200 rounded animate-pulse"></div>
-          </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="h-10 bg-slate-200 rounded w-full sm:w-[180px] animate-pulse"></div>
+          <div className="h-10 bg-slate-200 rounded w-full sm:w-[240px] animate-pulse"></div>
+          <div className="h-10 bg-slate-200 rounded w-full sm:w-[140px] animate-pulse"></div>
         </div>
       </div>
 
       {/* Table Skeleton */}
-      <div className="bg-white border rounded-lg overflow-hidden">
+      <div className="overflow-x-auto border border-slate-200 rounded-lg bg-white">
         {/* Table Header */}
-        <div className="border-b bg-slate-50 px-6 py-4">
-          <div className="grid grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, index) => (
+        <div className="border-b border-slate-200 bg-slate-50 px-4 py-3">
+          <div className="grid grid-cols-8 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
               <div
-                key={index}
+                key={i}
                 className="h-4 bg-slate-200 rounded animate-pulse"
               ></div>
             ))}
           </div>
         </div>
 
-        {/* Table Rows */}
-        <div className="divide-y">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="px-6 py-4">
-              <div className="grid grid-cols-6 gap-4">
-                {Array.from({ length: 6 }).map((_, colIndex) => (
+        {/* Table Body */}
+        <div className="divide-y divide-slate-100">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="px-4 py-4">
+              <div className="grid grid-cols-8 gap-4">
+                {Array.from({ length: 8 }).map((_, j) => (
                   <div
-                    key={colIndex}
+                    key={j}
                     className="h-4 bg-slate-200 rounded animate-pulse"
                   ></div>
                 ))}

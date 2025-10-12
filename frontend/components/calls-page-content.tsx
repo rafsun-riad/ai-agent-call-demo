@@ -23,8 +23,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAIAgents } from "@/hooks/useAIAgents";
+import { CallsQueryParams, useCalls } from "@/hooks/useCalls";
 import { cn } from "@/lib/utils";
-import { addDays, format, subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import { CalendarIcon, Eye, EyeOff, Settings2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
@@ -42,12 +44,12 @@ type ColumnKey =
   | "direction";
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
-  callStartTime: "Call Start Time",
-  aiAgentName: "AI Agent Name",
-  duration: "Duration",
-  callType: "Call Type",
+  callStartTime: "Time",
+  aiAgentName: "Agent Name",
+  duration: "Call Duration",
+  callType: "Type",
   callStatus: "Call Status",
-  callFinishReason: "Finish Reason",
+  callFinishReason: "Ended Reason",
   fromNumber: "From Number",
   toNumber: "To Number",
   direction: "Direction",
@@ -58,68 +60,14 @@ const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
   "aiAgentName",
   "duration",
   "callStatus",
+  "callFinishReason",
   "fromNumber",
+  "toNumber",
   "direction",
 ];
 
 // Mock data for demonstration
-const MOCK_CALLS = [
-  {
-    id: "1",
-    callStartTime: "2024-01-15T10:30:00Z",
-    aiAgentName: "MetLife Support",
-    duration: "00:02:45",
-    callType: "Inbound",
-    callStatus: "Completed",
-    callFinishReason: "Customer ended call",
-    fromNumber: "+880171234567",
-    toNumber: "+880171234568",
-    direction: "Inbound",
-  },
-  {
-    id: "2",
-    callStartTime: "2024-01-15T11:15:00Z",
-    aiAgentName: "Sales Assistant",
-    duration: "00:01:32",
-    callType: "Outbound",
-    callStatus: "Failed",
-    callFinishReason: "No answer",
-    fromNumber: "+880171234568",
-    toNumber: "+880171234569",
-    direction: "Outbound",
-  },
-  {
-    id: "3",
-    callStartTime: "2024-01-15T14:22:00Z",
-    aiAgentName: "Technical Support",
-    duration: "00:05:18",
-    callType: "Inbound",
-    callStatus: "Completed",
-    callFinishReason: "Issue resolved",
-    fromNumber: "+880171234570",
-    toNumber: "+880171234568",
-    direction: "Inbound",
-  },
-  {
-    id: "4",
-    callStartTime: "2024-01-15T16:45:00Z",
-    aiAgentName: "MetLife Support",
-    duration: "00:00:45",
-    callType: "Inbound",
-    callStatus: "Abandoned",
-    callFinishReason: "Customer hung up",
-    fromNumber: "+880171234571",
-    toNumber: "+880171234568",
-    direction: "Inbound",
-  },
-];
-
-const MOCK_AI_AGENTS = [
-  { id: "all", name: "All Agents" },
-  { id: "1", name: "MetLife Support" },
-  { id: "2", name: "Sales Assistant" },
-  { id: "3", name: "Technical Support" },
-];
+const MOCK_CALLS: never[] = [];
 
 export default function CallsPageContent() {
   const [selectedAgent, setSelectedAgent] = useState("all");
@@ -131,29 +79,41 @@ export default function CallsPageContent() {
     DEFAULT_VISIBLE_COLUMNS
   );
 
-  const filteredCalls = useMemo(() => {
-    let filtered = MOCK_CALLS;
+  // API query parameters
+  const queryParams: CallsQueryParams = useMemo(() => {
+    const params: CallsQueryParams = {
+      sort_direction: "desc",
+      page_size: 50,
+    };
 
-    // Filter by AI agent
+    // Add agent filter if selected
     if (selectedAgent !== "all") {
-      const agentName = MOCK_AI_AGENTS.find(
-        (agent) => agent.id === selectedAgent
-      )?.name;
-      filtered = filtered.filter((call) => call.aiAgentName === agentName);
+      params.ai_agent_id = selectedAgent;
     }
 
-    // Filter by date range
-    if (dateRange?.from) {
-      filtered = filtered.filter((call) => {
-        const callDate = new Date(call.callStartTime);
-        const fromDate = dateRange.from!;
-        const toDate = dateRange.to || dateRange.from;
-        return callDate >= fromDate && callDate <= addDays(toDate!, 1);
-      });
-    }
+    return params;
+  }, [selectedAgent]);
 
-    return filtered;
-  }, [selectedAgent, dateRange]);
+  // Fetch calls data with infinite scroll
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+  } = useCalls(queryParams);
+
+  // Fetch AI agents for filter dropdown
+  const { data: agentsData } = useAIAgents();
+
+  // Flatten all pages of calls data
+  const allCalls = useMemo(() => {
+    return data?.pages.flatMap((page) => page.calls) || [];
+  }, [data]);
+
+  // Get total count from first page
+  const totalCount = data?.pages[0]?.total_count || 0;
 
   const handleColumnToggle = (column: ColumnKey) => {
     setVisibleColumns((prev) =>
@@ -165,7 +125,6 @@ export default function CallsPageContent() {
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
-      case "completed":
       case "ended":
         return (
           <Badge
@@ -188,15 +147,38 @@ export default function CallsPageContent() {
     }
   };
 
+  // Format duration from seconds to mm:ss format
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes} min ${remainingSeconds} sec`;
+  };
+
+  // Handle infinite scroll
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Failed to load calls</p>
+          <p className="text-sm text-slate-600">Please try again later</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header with inline filters */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-100 px-3 py-1.5 rounded-md">
-            <span className="font-medium">
-              Total Calls: {filteredCalls.length}
-            </span>
+            <span className="font-medium">Total Calls: {totalCount}</span>
           </div>
         </div>
 
@@ -207,9 +189,10 @@ export default function CallsPageContent() {
               <SelectValue placeholder="All agents" />
             </SelectTrigger>
             <SelectContent>
-              {MOCK_AI_AGENTS.map((agent) => (
+              <SelectItem value="all">All Agents</SelectItem>
+              {agentsData?.map((agent) => (
                 <SelectItem key={agent.id} value={agent.id}>
-                  {agent.name}
+                  {agent.agentName}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -311,7 +294,7 @@ export default function CallsPageContent() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredCalls.length === 0 ? (
+            {allCalls.length === 0 && !isLoading ? (
               <TableRow>
                 <TableCell
                   colSpan={visibleColumns.length}
@@ -326,56 +309,58 @@ export default function CallsPageContent() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredCalls.map((call) => (
+              allCalls.map((call) => (
                 <TableRow
-                  key={call.id}
+                  key={call._id}
                   className="hover:bg-slate-50 border-b border-slate-100"
                 >
                   {visibleColumns.includes("callStartTime") && (
                     <TableCell className="px-4 py-3 text-sm">
                       {format(
-                        new Date(call.callStartTime),
+                        new Date(call.call_start_time),
                         "dd MMMM, yyyy HH:mm"
                       )}
                     </TableCell>
                   )}
                   {visibleColumns.includes("aiAgentName") && (
                     <TableCell className="px-4 py-3 text-sm font-medium text-slate-900">
-                      {call.aiAgentName}
+                      {call.ai_agent_name}
                     </TableCell>
                   )}
                   {visibleColumns.includes("duration") && (
                     <TableCell className="px-4 py-3 text-sm">
-                      {call.duration}
+                      {formatDuration(call.call_duration_seconds)}
                     </TableCell>
                   )}
                   {visibleColumns.includes("callType") && (
                     <TableCell className="px-4 py-3 text-sm">
-                      {call.callType}
+                      {call.call_type === "phone_call"
+                        ? "Phone"
+                        : call.call_type}
                     </TableCell>
                   )}
                   {visibleColumns.includes("callStatus") && (
                     <TableCell className="px-4 py-3">
-                      {getStatusBadge(call.callStatus)}
+                      {getStatusBadge(call.call_status)}
                     </TableCell>
                   )}
                   {visibleColumns.includes("callFinishReason") && (
                     <TableCell className="px-4 py-3 text-sm text-slate-600">
-                      {call.callFinishReason}
+                      {call.call_finish_reason.replace(/_/g, " ")}
                     </TableCell>
                   )}
                   {visibleColumns.includes("fromNumber") && (
                     <TableCell className="px-4 py-3 text-sm font-mono">
-                      {call.fromNumber || "N/A"}
+                      {call.from_number || "N/A"}
                     </TableCell>
                   )}
                   {visibleColumns.includes("toNumber") && (
                     <TableCell className="px-4 py-3 text-sm font-mono">
-                      {call.toNumber || "N/A"}
+                      {call.to_number || "N/A"}
                     </TableCell>
                   )}
                   {visibleColumns.includes("direction") && (
-                    <TableCell className="px-4 py-3 text-sm">
+                    <TableCell className="px-4 py-3 text-sm capitalize">
                       {call.direction}
                     </TableCell>
                   )}
@@ -384,6 +369,27 @@ export default function CallsPageContent() {
             )}
           </TableBody>
         </Table>
+
+        {/* Load More Button */}
+        {hasNextPage && (
+          <div className="p-4 text-center border-t border-slate-200">
+            <Button
+              onClick={handleLoadMore}
+              disabled={isFetchingNextPage}
+              variant="outline"
+              className="w-full"
+            >
+              {isFetchingNextPage ? (
+                <>
+                  <div className="mr-2 h-4 w-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                  Loading more...
+                </>
+              ) : (
+                `Load More Calls`
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
