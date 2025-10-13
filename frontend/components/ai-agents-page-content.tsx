@@ -93,13 +93,13 @@ export default function AIAgentsPageContent() {
   const handleCreateAgent = () => {
     const newAgentData = {
       agent_name: "Simple Agent",
+      language_code: "bn-BD",
       llm: {
         llm_type: "simple",
-        max_tokens: 4096,
         model_provider: "openai",
         model_name: "gpt-4o-mini",
-        model_temperature: 0,
         system_prompt: "You are a simple friendly AI assistant",
+        model_temperature: 0,
       },
       stt: {
         provider: "pia",
@@ -109,11 +109,14 @@ export default function AIAgentsPageContent() {
         provider: "pia",
         voice_name: "Maria",
         voice_id: "maria",
-        voice_temperature: 0,
       },
       welcome_message: "Hello, How Can I help you today?",
     };
 
+    console.log(
+      "🔥 handleCreateAgent called with data:",
+      JSON.stringify(newAgentData, null, 2)
+    );
     createAIAgentMutation.mutate(newAgentData);
   };
 

@@ -31,8 +31,12 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log(
+      "🚀 POST /api/ai-agents - Request body:",
+      JSON.stringify(body, null, 2)
+    );
 
-    const response = await fetch(`${BASE_URL}/v2/ai-agents/`, {
+    const response = await fetch(`${BASE_URL}/v2/ai-agents`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -41,17 +45,39 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
+    console.log("📡 External API response status:", response.status);
+    console.log(
+      "📡 External API response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error("❌ External API error response:", errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, body: ${errorText}`
+      );
     }
 
     const data = await response.json();
+    console.log(
+      "✅ External API success response:",
+      JSON.stringify(data, null, 2)
+    );
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("API Error:", error);
+    console.error("💥 API Error in POST /api/ai-agents:", error);
+    console.error(
+      "💥 Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    );
+
     return NextResponse.json(
-      { error: "Failed to create AI agent" },
+      {
+        error: "Failed to create AI agent",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

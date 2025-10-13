@@ -7,13 +7,13 @@ import { useApi } from "./useApi";
 
 interface CreateAIAgentRequest {
   agent_name: string;
+  language_code: string;
   llm: {
     llm_type: string;
-    max_tokens: number;
     model_provider: string;
     model_name: string;
-    model_temperature: number;
     system_prompt: string;
+    model_temperature: number;
   };
   stt: {
     provider: string;
@@ -23,7 +23,6 @@ interface CreateAIAgentRequest {
     provider: string;
     voice_name: string;
     voice_id: string;
-    voice_temperature: number;
   };
   welcome_message: string;
 }
@@ -44,8 +43,19 @@ export const useCreateAIAgent = () => {
     mutationFn: async (
       data: CreateAIAgentRequest
     ): Promise<CreateAIAgentResponse> => {
-      const response = await post(`/api/ai-agents`, data);
-      return response.data as CreateAIAgentResponse;
+      console.log(
+        "🎯 useCreateAIAgent - Sending data:",
+        JSON.stringify(data, null, 2)
+      );
+
+      try {
+        const response = await post(`/api/ai-agents`, data);
+        console.log("✅ useCreateAIAgent - Success response:", response.data);
+        return response.data as CreateAIAgentResponse;
+      } catch (error) {
+        console.error("❌ useCreateAIAgent - Error:", error);
+        throw error;
+      }
     },
     onMutate: () => {
       const toastId = toast.loading("Creating AI agent...");
@@ -65,10 +75,28 @@ export const useCreateAIAgent = () => {
       }
     },
     onError: (error: unknown, variables, context) => {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to create AI agent. Please try again.";
+      console.error("💥 useCreateAIAgent - onError triggered:", error);
+
+      let errorMessage = "Failed to create AI agent. Please try again.";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        console.error("💥 Error message:", error.message);
+        console.error("💥 Error stack:", error.stack);
+      }
+
+      // Check if it's an axios error with response data
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { details?: string }; status?: number };
+        };
+        console.error("💥 Axios error response:", axiosError.response?.data);
+        console.error("💥 Axios error status:", axiosError.response?.status);
+
+        if (axiosError.response?.data?.details) {
+          errorMessage = `${errorMessage} Details: ${axiosError.response.data.details}`;
+        }
+      }
 
       toast.error(errorMessage, { id: context?.id });
     },
