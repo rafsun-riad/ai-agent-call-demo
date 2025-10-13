@@ -107,13 +107,19 @@ export default function AIAgentDetailsPageContent({
 
   const handleAgentNameSave = async () => {
     try {
+      // Immediately exit edit mode for better UX with optimistic updates
+      setIsEditingAgentName(false);
+      setAgentNameChanged(false);
+
       await updateAIAgentMutation.mutateAsync({
         agent_name: agentName,
       });
-      setIsEditingAgentName(false);
-      setAgentNameChanged(false);
     } catch (err) {
+      // If the mutation fails, the optimistic update will be rolled back
+      // and we might want to re-enter edit mode
       console.error("Failed to save agent name:", err);
+      setIsEditingAgentName(true);
+      setAgentNameChanged(true);
     }
   };
 
