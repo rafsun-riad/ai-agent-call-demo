@@ -118,7 +118,31 @@ export async function DELETE(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
+    // Check if response has content before trying to parse JSON
+    const contentType = response.headers.get("content-type");
+    const hasJsonContent =
+      contentType && contentType.includes("application/json");
+
+    let data;
+    if (hasJsonContent && response.body) {
+      try {
+        data = await response.json();
+      } catch {
+        // If JSON parsing fails, create a success response
+        data = {
+          status: "SUCCESS",
+          message: "AI agent deleted successfully",
+          ai_agent_id: id,
+        };
+      }
+    } else {
+      // No JSON content, create a success response
+      data = {
+        status: "SUCCESS",
+        message: "AI agent deleted successfully",
+        ai_agent_id: id,
+      };
+    }
 
     return NextResponse.json(data);
   } catch (error) {

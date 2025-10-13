@@ -8,9 +8,11 @@ import ColumnVisibilitySelector, {
   ColumnKey,
 } from "@/components/column-visibility-selector";
 import DashboardLayout from "@/components/dashboard-layout";
+import DeleteConfirmationDialog from "@/components/delete-confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAIAgents } from "@/hooks/useAIAgents";
+import { useDeleteAIAgent } from "@/hooks/useDeleteAIAgent";
 import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -25,12 +27,21 @@ const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
 
 export default function AIAgentsPageContent() {
   const { data: agents } = useAIAgents();
+  const deleteAIAgentMutation = useDeleteAIAgent();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<ColumnKey[]>(
     DEFAULT_VISIBLE_COLUMNS
   );
   const [sortField, setSortField] = useState<SortField | null>("createdAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  // Delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [agentToDelete, setAgentToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -52,8 +63,29 @@ export default function AIAgentsPageContent() {
   };
 
   const handleDelete = (id: string) => {
-    // TODO: Implement delete functionality
-    console.log("Delete agent:", id);
+    const agent = agents.find((a) => a.id === id);
+    if (agent) {
+      setAgentToDelete({ id, name: agent.agentName });
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (agentToDelete) {
+      try {
+        await deleteAIAgentMutation.mutateAsync(agentToDelete.id);
+        setDeleteDialogOpen(false);
+        setAgentToDelete(null);
+      } catch (error) {
+        // Error is handled by the mutation hook
+        console.error("Delete failed:", error);
+      }
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setAgentToDelete(null);
   };
 
   const filteredAndSortedAgents = useMemo(() => {
@@ -142,6 +174,15 @@ export default function AIAgentsPageContent() {
           onDelete={handleDelete}
         />
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        agentName={agentToDelete?.name || ""}
+        isDeleting={deleteAIAgentMutation.isPending}
+      />
     </DashboardLayout>
   );
 }
