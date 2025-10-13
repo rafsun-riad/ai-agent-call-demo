@@ -307,7 +307,21 @@ export default function CallsPageContent() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {allCalls.length === 0 && !isLoading ? (
+            {isLoading ? (
+              // Show skeleton rows while loading
+              Array.from({ length: 8 }).map((_, i) => (
+                <TableRow
+                  key={`skeleton-${i}`}
+                  className="border-b border-slate-100"
+                >
+                  {visibleColumns.map((_, j) => (
+                    <TableCell key={j} className="px-4 py-4">
+                      <div className="h-4 bg-slate-200 rounded animate-pulse"></div>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : allCalls.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={visibleColumns.length}
