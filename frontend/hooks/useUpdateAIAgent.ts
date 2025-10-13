@@ -38,9 +38,14 @@ export const useUpdateAIAgent = (agentId: string) => {
     onSuccess: (data, variables, context) => {
       toast.success("AI agent updated successfully!", { id: context.id });
 
-      // Invalidate and refetch the agent details
+      // Invalidate and refetch the agent details to ensure fresh data
       queryClient.invalidateQueries({
-        queryKey: ["aiAgentDetails", agentId],
+        queryKey: ["ai-agent", agentId],
+      });
+
+      // Also invalidate the general AI agents list if it exists
+      queryClient.invalidateQueries({
+        queryKey: ["ai-agents"],
       });
     },
     onError: (error: unknown, variables, context) => {
