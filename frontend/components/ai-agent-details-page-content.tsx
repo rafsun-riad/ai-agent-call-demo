@@ -4,16 +4,21 @@ import Breadcrumb from "@/components/breadcrumb";
 import SystemPromptEditor from "@/components/system-prompt-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAIAgentDetails } from "@/hooks/useAIAgentDetails";
+import { useUpdateAIAgent } from "@/hooks/useUpdateAIAgent";
 import {
   Brain,
+  Check,
   Copy,
+  Edit,
   MessageSquare,
   Mic,
   Save,
   Settings,
   Volume2,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -25,9 +30,16 @@ export default function AIAgentDetailsPageContent({
   agentId,
 }: AIAgentDetailsPageContentProps) {
   const { data: agentData } = useAIAgentDetails(agentId);
+  const updateAIAgentMutation = useUpdateAIAgent(agentId);
+
   const [copySuccess, setCopySuccess] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState("");
   const [welcomeMessageChanged, setWelcomeMessageChanged] = useState(false);
+
+  // Agent name editing state
+  const [isEditingAgentName, setIsEditingAgentName] = useState(false);
+  const [agentName, setAgentName] = useState("");
+  const [agentNameChanged, setAgentNameChanged] = useState(false);
 
   // Initialize welcome message when data loads
   useEffect(() => {
@@ -35,6 +47,13 @@ export default function AIAgentDetailsPageContent({
       setWelcomeMessage(agentData.welcome_message.replace(/\\n/g, "\n"));
     }
   }, [agentData?.welcome_message]);
+
+  // Initialize agent name when data loads
+  useEffect(() => {
+    if (agentData?.agent_name) {
+      setAgentName(agentData.agent_name);
+    }
+  }, [agentData?.agent_name]);
 
   const handleCopyJson = async () => {
     try {
@@ -48,9 +67,11 @@ export default function AIAgentDetailsPageContent({
 
   const handleSystemPromptSave = async (updatedPrompt: string) => {
     try {
-      // TODO: Implement API call to update system prompt
-      console.log("Saving system prompt:", updatedPrompt);
-      // You can implement the API call here using the PATCH endpoint
+      await updateAIAgentMutation.mutateAsync({
+        llm: {
+          system_prompt: updatedPrompt,
+        },
+      });
     } catch (err) {
       console.error("Failed to save system prompt:", err);
     }
@@ -65,10 +86,10 @@ export default function AIAgentDetailsPageContent({
 
   const handleWelcomeMessageSave = async () => {
     try {
-      // TODO: Implement API call to update welcome message
-      console.log("Saving welcome message:", welcomeMessage);
+      await updateAIAgentMutation.mutateAsync({
+        welcome_message: welcomeMessage.replace(/\n/g, "\\n"),
+      });
       setWelcomeMessageChanged(false);
-      // You can implement the API call here using the PATCH endpoint
     } catch (err) {
       console.error("Failed to save welcome message:", err);
     }
@@ -77,6 +98,34 @@ export default function AIAgentDetailsPageContent({
   const handleWelcomeMessageDiscard = () => {
     setWelcomeMessage(agentData?.welcome_message?.replace(/\\n/g, "\n") || "");
     setWelcomeMessageChanged(false);
+  };
+
+  // Agent name editing handlers
+  const handleAgentNameEdit = () => {
+    setIsEditingAgentName(true);
+  };
+
+  const handleAgentNameSave = async () => {
+    try {
+      await updateAIAgentMutation.mutateAsync({
+        agent_name: agentName,
+      });
+      setIsEditingAgentName(false);
+      setAgentNameChanged(false);
+    } catch (err) {
+      console.error("Failed to save agent name:", err);
+    }
+  };
+
+  const handleAgentNameCancel = () => {
+    setAgentName(agentData?.agent_name || "");
+    setIsEditingAgentName(false);
+    setAgentNameChanged(false);
+  };
+
+  const handleAgentNameChange = (value: string) => {
+    setAgentName(value);
+    setAgentNameChanged(value !== (agentData?.agent_name || ""));
   };
 
   return (
@@ -92,9 +141,58 @@ export default function AIAgentDetailsPageContent({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            {agentData.agent_name}
-          </h1>
+          <div className="flex items-center gap-3">
+            {isEditingAgentName ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={agentName}
+                  onChange={(e) => handleAgentNameChange(e.target.value)}
+                  className="text-2xl font-semibold text-slate-900 h-10 px-3 border-2 border-blue-300 focus:border-blue-500"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleAgentNameSave();
+                    } else if (e.key === "Escape") {
+                      handleAgentNameCancel();
+                    }
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAgentNameSave}
+                  disabled={
+                    !agentNameChanged || updateAIAgentMutation.isPending
+                  }
+                  className="h-8 w-8 p-0"
+                >
+                  <Check className="h-4 w-4 text-green-600" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAgentNameCancel}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4 text-red-600" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-semibold text-slate-900">
+                  {agentData.agent_name}
+                </h1>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleAgentNameEdit}
+                  className="h-8 w-8 p-0 hover:bg-slate-100"
+                >
+                  <Edit className="h-4 w-4 text-slate-500" />
+                </Button>
+              </div>
+            )}
+          </div>
           <div className="space-y-1 mt-2">
             <p className="text-slate-600">Agent ID: {agentData.ai_agent_id}</p>
             <p className="text-slate-600">LLM ID: {agentData.llm?.llm_id}</p>
