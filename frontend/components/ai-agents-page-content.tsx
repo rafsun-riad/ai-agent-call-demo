@@ -12,6 +12,7 @@ import DeleteConfirmationDialog from "@/components/delete-confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAIAgents } from "@/hooks/useAIAgents";
+import { useCreateAIAgent } from "@/hooks/useCreateAIAgent";
 import { useDeleteAIAgent } from "@/hooks/useDeleteAIAgent";
 import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -28,6 +29,7 @@ const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
 export default function AIAgentsPageContent() {
   const { data: agents } = useAIAgents();
   const deleteAIAgentMutation = useDeleteAIAgent();
+  const createAIAgentMutation = useCreateAIAgent();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<ColumnKey[]>(
@@ -88,6 +90,33 @@ export default function AIAgentsPageContent() {
     setAgentToDelete(null);
   };
 
+  const handleCreateAgent = () => {
+    const newAgentData = {
+      agent_name: "Simple Agent",
+      llm: {
+        llm_type: "simple",
+        max_tokens: 4096,
+        model_provider: "openai",
+        model_name: "gpt-4o-mini",
+        model_temperature: 0,
+        system_prompt: "You are a simple friendly AI assistant",
+      },
+      stt: {
+        provider: "pia",
+        model: "pia_bangla_v1",
+      },
+      tts: {
+        provider: "pia",
+        voice_name: "Maria",
+        voice_id: "maria",
+        voice_temperature: 0,
+      },
+      welcome_message: "Hello, How Can I help you today?",
+    };
+
+    createAIAgentMutation.mutate(newAgentData);
+  };
+
   const filteredAndSortedAgents = useMemo(() => {
     const filtered = agents.filter(
       (agent) =>
@@ -140,9 +169,13 @@ export default function AIAgentsPageContent() {
       title="AI Agents"
       subtitle="Manage your AI agents for call handling"
       actions={
-        <Button className="bg-black text-white hover:bg-slate-800">
+        <Button
+          className="bg-black text-white hover:bg-slate-800"
+          onClick={handleCreateAgent}
+          disabled={createAIAgentMutation.isPending}
+        >
           <Plus className="h-4 w-4 mr-2" />
-          Create Agent
+          {createAIAgentMutation.isPending ? "Creating..." : "Create Agent"}
         </Button>
       }
     >
