@@ -137,6 +137,32 @@ export default function DashboardLayout({
 
           <Button asChild variant="ghost" className="w-full justify-start px-4">
             <Link
+              href="/knowledge-base"
+              className="flex items-center gap-3 w-full text-slate-700"
+            >
+              <Icon>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 0 4 4.5v15ZM9 7h6M9 11h6M9 15h3"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Icon>
+              Knowledge Base
+            </Link>
+          </Button>
+
+          <Button asChild variant="ghost" className="w-full justify-start px-4">
+            <Link
               href="/settings"
               className="flex items-center gap-3 w-full text-slate-700"
             >
