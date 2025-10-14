@@ -3,7 +3,7 @@
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Link as LinkIcon, Plus, Trash2 } from "lucide-react";
+import { FileText, Link as LinkIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 // Mock data for knowledge bases
@@ -86,6 +86,16 @@ export default function KnowledgeBasePageContent() {
     // TODO: Implement delete functionality
   };
 
+  const handleEditKnowledgeBase = (kbId: string) => {
+    console.log("Edit knowledge base:", kbId);
+    // TODO: Implement edit functionality
+  };
+
+  const handleDeleteKnowledgeBase = (kbId: string) => {
+    console.log("Delete knowledge base:", kbId);
+    // TODO: Implement delete functionality
+  };
+
   return (
     <DashboardLayout
       title="Knowledge Base"
@@ -101,16 +111,16 @@ export default function KnowledgeBasePageContent() {
             <CardContent className="p-0">
               <div className="space-y-1">
                 {mockKnowledgeBases.map((kb) => (
-                  <button
+                  <div
                     key={kb.id}
-                    className={`w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0 ${
+                    className={`group relative w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0 cursor-pointer ${
                       selectedKnowledgeBase === kb.id
                         ? "bg-slate-100 border-r-2 border-slate-400"
                         : ""
                     }`}
                     onClick={() => setSelectedKnowledgeBase(kb.id)}
                   >
-                    <div className="space-y-1">
+                    <div className="space-y-1 pr-16">
                       <div className="font-medium text-slate-900">
                         {kb.name}
                       </div>
@@ -118,7 +128,33 @@ export default function KnowledgeBasePageContent() {
                         {kb.documentsCount} documents • ID: {kb.id_display}
                       </div>
                     </div>
-                  </button>
+
+                    {/* Hover Icons */}
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 hover:bg-slate-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditKnowledgeBase(kb.id);
+                        }}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteKnowledgeBase(kb.id);
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
                 ))}
               </div>
             </CardContent>
