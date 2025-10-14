@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardLayout from "@/components/dashboard-layout";
+import KnowledgeBaseSkeleton from "@/components/knowledge-base-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useKnowledgeBases } from "@/hooks/useKnowledgeBases";
@@ -89,6 +90,17 @@ export default function KnowledgeBasePageContent() {
     // TODO: Implement delete functionality
   };
 
+  if (isLoading) {
+    return (
+      <DashboardLayout
+        title="Knowledge Base"
+        subtitle="Manage your knowledge bases and documents"
+      >
+        <KnowledgeBaseSkeleton />
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout
       title="Knowledge Base"
@@ -102,11 +114,7 @@ export default function KnowledgeBasePageContent() {
               <CardTitle className="text-lg">Knowledge Bases</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              {isLoading ? (
-                <div className="p-4 text-center text-slate-500">
-                  Loading knowledge bases...
-                </div>
-              ) : error ? (
+              {error ? (
                 <div className="p-4 text-center text-red-500">
                   Failed to load knowledge bases
                 </div>
