@@ -3,24 +3,9 @@
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useKnowledgeBases } from "@/hooks/useKnowledgeBases";
 import { FileText, Link as LinkIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-
-// Mock data for knowledge bases
-const mockKnowledgeBases = [
-  {
-    id: "1",
-    name: "Lafarge Surma Cement",
-    documentsCount: 3,
-    id_display: "68a402...472",
-  },
-  {
-    id: "2",
-    name: "MetLife",
-    documentsCount: 5,
-    id_display: "72b503...583",
-  },
-];
 
 // Document types
 interface Document {
@@ -70,11 +55,19 @@ const mockDocuments: Record<string, Document[]> = {
 };
 
 export default function KnowledgeBasePageContent() {
+  const { data: knowledgeBasesData, isLoading, error } = useKnowledgeBases();
   const [selectedKnowledgeBase, setSelectedKnowledgeBase] = useState<
     string | null
-  >("1");
+  >(null);
 
-  const selectedKB = mockKnowledgeBases.find(
+  const knowledgeBases = knowledgeBasesData?.knowledge_bases || [];
+
+  // Auto-select first knowledge base when data loads
+  if (knowledgeBases.length > 0 && !selectedKnowledgeBase) {
+    setSelectedKnowledgeBase(knowledgeBases[0].id);
+  }
+
+  const selectedKB = knowledgeBases.find(
     (kb) => kb.id === selectedKnowledgeBase
   );
   const documents = selectedKnowledgeBase
@@ -109,54 +102,69 @@ export default function KnowledgeBasePageContent() {
               <CardTitle className="text-lg">Knowledge Bases</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="space-y-1">
-                {mockKnowledgeBases.map((kb) => (
-                  <div
-                    key={kb.id}
-                    className={`group relative w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0 cursor-pointer ${
-                      selectedKnowledgeBase === kb.id
-                        ? "bg-slate-100 border-r-2 border-slate-400"
-                        : ""
-                    }`}
-                    onClick={() => setSelectedKnowledgeBase(kb.id)}
-                  >
-                    <div className="space-y-1 pr-16">
-                      <div className="font-medium text-slate-900">
-                        {kb.name}
+              {isLoading ? (
+                <div className="p-4 text-center text-slate-500">
+                  Loading knowledge bases...
+                </div>
+              ) : error ? (
+                <div className="p-4 text-center text-red-500">
+                  Failed to load knowledge bases
+                </div>
+              ) : knowledgeBases.length === 0 ? (
+                <div className="p-4 text-center text-slate-500">
+                  No knowledge bases found
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {knowledgeBases.map((kb) => (
+                    <div
+                      key={kb.id}
+                      className={`group relative w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0 cursor-pointer ${
+                        selectedKnowledgeBase === kb.id
+                          ? "bg-slate-100 border-r-2 border-slate-400"
+                          : ""
+                      }`}
+                      onClick={() => setSelectedKnowledgeBase(kb.id)}
+                    >
+                      <div className="space-y-1 pr-16">
+                        <div className="font-medium text-slate-900">
+                          {kb.name}
+                        </div>
+                        <div className="text-sm text-slate-500">
+                          {kb.documentsCount || 0} documents • ID:{" "}
+                          {kb.id_display}
+                        </div>
                       </div>
-                      <div className="text-sm text-slate-500">
-                        {kb.documentsCount} documents • ID: {kb.id_display}
-                      </div>
-                    </div>
 
-                    {/* Hover Icons */}
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0 hover:bg-slate-200"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditKnowledgeBase(kb.id);
-                        }}
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-600"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteKnowledgeBase(kb.id);
-                        }}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                      {/* Hover Icons */}
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 hover:bg-slate-200"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditKnowledgeBase(kb.id);
+                          }}
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteKnowledgeBase(kb.id);
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
