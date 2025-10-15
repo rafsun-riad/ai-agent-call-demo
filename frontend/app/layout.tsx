@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/components/auth-provider";
 import PageLoadingBar from "@/components/page-loading-bar";
 import { QueryProviders } from "@/providers/QueryProviders";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -33,7 +34,7 @@ export default function RootLayout({
       >
         <PageLoadingBar />
         <QueryProviders>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
 
           <ReactQueryDevtools initialIsOpen={false} />
           <Toaster richColors />
